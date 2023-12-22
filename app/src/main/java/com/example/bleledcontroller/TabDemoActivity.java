@@ -2,42 +2,57 @@ package com.example.bleledcontroller;
 
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
-import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-
-import com.example.bleledcontroller.ui.main.SectionsPagerAdapter;
-import com.example.bleledcontroller.databinding.ActivityTabDemoBinding;
 
 public class TabDemoActivity extends AppCompatActivity {
 
-    private ActivityTabDemoBinding binding;
-    private ViewPager pager;
-    private TabLayout tabLayout;
+    private final ViewModel viewModel = new ViewModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab_demo);
 
-        pager = findViewById(R.id.pager);
-        tabLayout = findViewById(R.id.tabs);
-        TabLayout.Tab tab1 = tabLayout.newTab();
-        tab1.setText("Scan");
-        TabLayout.Tab tab2 = tabLayout.newTab();
-        tab2.setText("Configure");
-        TabLayout.Tab tab3 = tabLayout.newTab();
-        tab3.setText("Debug");
-        tabLayout.addTab(tab1);
-        tabLayout.addTab(tab2);
-        tabLayout.addTab(tab3);
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        ViewPager2 pager = findViewById(R.id.pager);
+
+        configureTabs(tabLayout, pager);
+        configurePager(pager, tabLayout, viewModel.getFragmentStateAdapter(getSupportFragmentManager(), getLifecycle()));
+
+        viewModel.logMessage("Initialized.");
+    }
+
+    private void configureTabs(TabLayout tabLayout, ViewPager2 pager) {
+        tabLayout.addTab(tabLayout.newTab().setText("Connection"));
+        tabLayout.addTab(tabLayout.newTab().setText("Configure"));
+        tabLayout.addTab(tabLayout.newTab().setText("Debug"));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                pager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+    }
+
+    private void configurePager(ViewPager2 pager, TabLayout tabLayout, FragmentStateAdapter adapter) {
+        pager.setAdapter(adapter);
+        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                tabLayout.selectTab(tabLayout.getTabAt(position));
+            }
+        });
     }
 }

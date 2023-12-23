@@ -1,5 +1,8 @@
 package com.example.bleledcontroller;
 
+import android.os.Handler;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -46,28 +49,64 @@ public class ViewModel {
     public void beginScan() {
         logMessage("Starting scan.");
 
-        // Add some dummy devices
-        scanView.addDiscoveredDevice(new DiscoveredDevice() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             private String name = "Dummy " + dummyDeviceNumber++;
 
             @Override
-            public String getName() {
-                return name;
-            }
-        });
+            public void run() {
+                scanView.addDiscoveredDevice(new DiscoveredDevice() {
 
-        scanView.addDiscoveredDevice(new DiscoveredDevice() {
+                    @Override
+                    public String getName() {
+                        return name;
+                    }
+                });
+            }
+        }, 1000);
+
+        handler.postDelayed(new Runnable() {
             private String name = "Dummy " + dummyDeviceNumber++;
 
             @Override
-            public String getName() {
-                return name;
+            public void run() {
+                scanView.addDiscoveredDevice(new DiscoveredDevice() {
+
+                    @Override
+                    public String getName() {
+                        return name;
+                    }
+                });
             }
-        });
+        }, 2000);
+
     }
 
     public void stopScan() {
         logMessage("Scan stopped.");
+    }
+
+    public void connect(DiscoveredDevice device)
+    {
+        logMessage("Pretending to connect to device: " + device.getName());
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scanView.setConnectedState(device);
+            }
+        }, 1000);
+    }
+
+    public void disconnect() {
+        logMessage("Disconnecting.");
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scanView.setDisconnectedState();
+            }
+        }, 1000);
     }
 
     public void logMessage(String message) {

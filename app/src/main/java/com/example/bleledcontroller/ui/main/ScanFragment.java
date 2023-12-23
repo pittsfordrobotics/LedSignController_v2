@@ -3,27 +3,20 @@ package com.example.bleledcontroller.ui.main;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckedTextView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.bleledcontroller.R;
 import com.example.bleledcontroller.ViewModel;
-import com.example.bleledcontroller.bluetooth.DiscoveredDevice;
+import com.example.bleledcontroller.bluetooth.BleDevice;
+import com.example.bleledcontroller.bluetooth.ConnectedDevice;
 import com.example.bleledcontroller.views.ScanView;
-
-import java.util.ArrayList;
-import java.util.function.Consumer;
-import java.util.function.DoubleSupplier;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,7 +32,7 @@ public class ScanFragment extends ScanView {
     private Button stopScanButton = null;
     private Button connectButton = null;
     private Button disconnectButton = null;
-    private ArrayAdapter<DiscoveredDevice> discoveredDeviceListAdapter;
+    private ArrayAdapter<BleDevice> discoveredDeviceListAdapter;
     private ListView deviceList = null;
 
     public ScanFragment() {
@@ -75,12 +68,12 @@ public class ScanFragment extends ScanView {
     }
 
     @Override
-    public void addDiscoveredDevice(DiscoveredDevice device) {
+    public void addDiscoveredDevice(BleDevice device) {
         discoveredDeviceListAdapter.add(device);
     }
 
     @Override
-    public void setConnectedState(DiscoveredDevice device) {
+    public void setConnectedDevice(ConnectedDevice device) {
         discoveredDeviceListAdapter.clear();
         scanButton.setVisibility(View.GONE);
         connectButton.setVisibility(View.GONE);
@@ -163,7 +156,7 @@ public class ScanFragment extends ScanView {
         scanButton.setEnabled(false);
         connectButton.setEnabled(false);
         deviceList.setEnabled(false);
-        DiscoveredDevice device = (DiscoveredDevice) deviceList.getItemAtPosition(itemPosition);
+        BleDevice device = (BleDevice) deviceList.getItemAtPosition(itemPosition);
         viewModel.connect(device);
     }
 

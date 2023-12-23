@@ -1,7 +1,6 @@
 package com.example.bleledcontroller;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -9,7 +8,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.bleledcontroller.bluetooth.DiscoveredDevice;
+import com.example.bleledcontroller.bluetooth.BleDevice;
+import com.example.bleledcontroller.bluetooth.BluetoothProvider;
+import com.example.bleledcontroller.bluetooth.ConnectedDevice;
+import com.example.bleledcontroller.bluetooth.MockBluetoothProvider;
 import com.example.bleledcontroller.ui.main.ConfigurationFragment;
 import com.example.bleledcontroller.ui.main.DebugLogFragment;
 import com.example.bleledcontroller.ui.main.ScanFragment;
@@ -21,8 +23,8 @@ public class ViewModel {
     private DebugView debugView = null;
     private ScanView scanView = null;
     private ConfigurationView configurationView = null;
-
-    private Fragment[] uiFragments = new Fragment[] {};
+    private Fragment[] uiViews = new Fragment[] {};
+    private final BluetoothProvider btProvider = new MockBluetoothProvider();
 
     public ViewModel() {
         init(DebugLogFragment.newInstance(this), ScanFragment.newInstance(this), ConfigurationFragment.newInstance());
@@ -37,76 +39,34 @@ public class ViewModel {
         this.scanView = scanView;
         this.configurationView = configurationView;
 
-        uiFragments = new Fragment[] {
+        uiViews = new Fragment[] {
                 scanView,
                 configurationView,
                 debugView
         };
     }
 
-    private int dummyDeviceNumber = 1;
-
     public void beginScan() {
         logMessage("Starting scan.");
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            private String name = "Dummy " + dummyDeviceNumber++;
-
-            @Override
-            public void run() {
-                scanView.addDiscoveredDevice(new DiscoveredDevice() {
-
-                    @Override
-                    public String getName() {
-                        return name;
-                    }
-                });
-            }
-        }, 1000);
-
-        handler.postDelayed(new Runnable() {
-            private String name = "Dummy " + dummyDeviceNumber++;
-
-            @Override
-            public void run() {
-                scanView.addDiscoveredDevice(new DiscoveredDevice() {
-
-                    @Override
-                    public String getName() {
-                        return name;
-                    }
-                });
-            }
-        }, 2000);
-
+        btProvider.startScan(this::onDeviceDiscovered);
     }
 
     public void stopScan() {
+        btProvider.stopScan();
         logMessage("Scan stopped.");
     }
 
-    public void connect(DiscoveredDevice device)
+    public void connect(BleDevice device)
     {
         logMessage("Pretending to connect to device: " + device.getName());
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                scanView.setConnectedState(device);
-            }
-        }, 1000);
+        ConnectedDevice connectedDevice = btProvider.connectToDevice(device);
+        scanView.setConnectedDevice(connectedDevice);
     }
 
     public void disconnect() {
-        logMessage("Disconnecting.");
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                scanView.setDisconnectedState();
-            }
-        }, 1000);
+        btProvider.disconnect();
+        logMessage("Disconnected.");
+        scanView.setDisconnectedState();
     }
 
     public void logMessage(String message) {
@@ -119,13 +79,18 @@ public class ViewModel {
             @Override
             public Fragment createFragment(int position) {
                 // Check position for range
-                return uiFragments[position];
+                return uiViews[position];
             }
 
             @Override
             public int getItemCount() {
-                return uiFragments.length;
+                return uiViews.length;
             }
         };
+    }
+
+    private void onDeviceDiscovered(BleDevice device) {
+        logMessage("Discovered device: " + device.getName());
+        scanView.addDiscoveredDevice(device);
     }
 }

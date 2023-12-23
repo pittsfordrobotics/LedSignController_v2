@@ -2,13 +2,12 @@ package com.example.bleledcontroller.views;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.bleledcontroller.bluetooth.DiscoveredDevice;
-
-import java.util.function.Consumer;
+import com.example.bleledcontroller.bluetooth.BleDevice;
+import com.example.bleledcontroller.bluetooth.ConnectedDevice;
 
 public abstract class ScanView extends Fragment {
     public abstract void resetToInitialState();
-    public abstract void addDiscoveredDevice(DiscoveredDevice device);
-    public abstract void setConnectedState(DiscoveredDevice device);
+    public abstract void addDiscoveredDevice(BleDevice device);
+    public abstract void setConnectedDevice(ConnectedDevice device);
     public abstract void setDisconnectedState();
 }

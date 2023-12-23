@@ -2,10 +2,10 @@ package com.example.bleledcontroller.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 
-public class BleDiscoveredDevice extends DiscoveredDevice {
+public class AndroidBleDevice extends BleDevice {
     private BluetoothDevice device;
 
-    BleDiscoveredDevice(BluetoothDevice device)
+    AndroidBleDevice(BluetoothDevice device)
     {
         this.device = device;
     }

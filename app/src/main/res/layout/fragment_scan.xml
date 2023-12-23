@@ -9,41 +9,49 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="10dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/connectionStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="ConnectionStatus" />
 
         <Button
             android:id="@+id/scan"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="Scan" />
 
         <Button
             android:id="@+id/stopScan"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="Stop Scan" />
+
+        <TextView
+            android:id="@+id/discoveredDevicesText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Discovered devices:" />
+
+        <ListView
+            android:id="@+id/deviceList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:choiceMode="singleChoice" />
 
         <Button
             android:id="@+id/connect"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="Connect" />
 
         <Button
             android:id="@+id/disconnect"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="Disconnect" />
 
     </LinearLayout>

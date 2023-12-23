@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.bleledcontroller.bluetooth.DiscoveredDevice;
 import com.example.bleledcontroller.ui.main.ConfigurationFragment;
 import com.example.bleledcontroller.ui.main.DebugLogFragment;
 import com.example.bleledcontroller.ui.main.ScanFragment;
@@ -40,8 +41,29 @@ public class ViewModel {
         };
     }
 
+    private int dummyDeviceNumber = 1;
+
     public void beginScan() {
         logMessage("Starting scan.");
+
+        // Add some dummy devices
+        scanView.addDiscoveredDevice(new DiscoveredDevice() {
+            private String name = "Dummy " + dummyDeviceNumber++;
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        });
+
+        scanView.addDiscoveredDevice(new DiscoveredDevice() {
+            private String name = "Dummy " + dummyDeviceNumber++;
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        });
     }
 
     public void stopScan() {

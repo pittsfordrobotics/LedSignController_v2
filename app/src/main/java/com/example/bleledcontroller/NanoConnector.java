@@ -1,6 +1,8 @@
 package com.example.bleledcontroller;
 
+import static android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES;
 import static android.bluetooth.le.ScanSettings.CALLBACK_TYPE_FIRST_MATCH;
+import static android.bluetooth.le.ScanSettings.MATCH_NUM_MAX_ADVERTISEMENT;
 import static android.bluetooth.le.ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_BALANCED;
 
@@ -96,10 +98,12 @@ public class NanoConnector {
         List<ScanFilter> filters = new ArrayList<ScanFilter>();
         filters.add(scanFilter);
 
+        // Add another filter for the new UUID
+
         ScanSettings scanSettings = new ScanSettings.Builder()
                 .setScanMode(SCAN_MODE_BALANCED)
-                .setNumOfMatches(MATCH_NUM_ONE_ADVERTISEMENT)
-                .setCallbackType(CALLBACK_TYPE_FIRST_MATCH)
+                .setNumOfMatches(MATCH_NUM_MAX_ADVERTISEMENT)
+                .setCallbackType(CALLBACK_TYPE_ALL_MATCHES)
                 .build();
 
         bluetoothAdapter.getBluetoothLeScanner().startScan(filters, scanSettings, leScanCallback);

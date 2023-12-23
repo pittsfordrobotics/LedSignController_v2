@@ -3,17 +3,25 @@ package com.example.bleledcontroller.ui.main;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.bleledcontroller.R;
 import com.example.bleledcontroller.ViewModel;
+import com.example.bleledcontroller.bluetooth.DiscoveredDevice;
 import com.example.bleledcontroller.views.ScanView;
 
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
@@ -25,12 +33,14 @@ import java.util.function.DoubleSupplier;
 public class ScanFragment extends ScanView {
 
     private ViewModel viewModel = null;
-
     private TextView connectionStatus = null;
+    private TextView discoveredDevicesText = null;
     private Button scanButton = null;
     private Button stopScanButton = null;
     private Button connectButton = null;
     private Button disconnectButton = null;
+    private ArrayAdapter<DiscoveredDevice> discoveredDeviceListAdapter;
+    private ListView deviceList = null;
 
     public ScanFragment() {
         // Required empty public constructor
@@ -64,12 +74,19 @@ public class ScanFragment extends ScanView {
         return view;
     }
 
+    @Override
+    public void addDiscoveredDevice(DiscoveredDevice device) {
+        discoveredDeviceListAdapter.add(device);
+    }
+
     public void resetToInitialState() {
+        discoveredDeviceListAdapter.clear();
         scanButton.setVisibility(View.VISIBLE);
         stopScanButton.setVisibility(View.GONE);
         connectButton.setVisibility(View.GONE);
         disconnectButton.setVisibility(View.GONE);
-        connectionStatus.setText("Press SCAN to begin scanning.");
+        connectionStatus.setText("Press SCAN to look for connections.");
+        discoveredDevicesText.setVisibility(View.GONE);
     }
 
     private void initialize(View view) {
@@ -80,18 +97,37 @@ public class ScanFragment extends ScanView {
         connectionStatus = view.findViewById(R.id.connectionStatus);
         scanButton.setOnClickListener(this::startScan);
         stopScanButton.setOnClickListener(this::stopScan);
+        discoveredDevicesText = view.findViewById(R.id.discoveredDevicesText);
+        deviceList = view.findViewById(R.id.deviceList);
+        discoveredDeviceListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice);
+        deviceList.setAdapter(discoveredDeviceListAdapter);
     }
 
     private void startScan(View v) {
+        // Clear any prior selection, since they carry over when re-scanning
+        deviceList.setItemChecked(-1, true);
+        discoveredDeviceListAdapter.clear();
         scanButton.setVisibility(View.GONE);
         stopScanButton.setVisibility(View.VISIBLE);
+        connectButton.setVisibility(View.GONE);
+        disconnectButton.setVisibility(View.GONE);
         connectionStatus.setText("Scanning...");
+        discoveredDevicesText.setVisibility(View.VISIBLE);
         viewModel.beginScan();
     }
 
     private void stopScan(View v) {
-        // Just reset everything.
-        resetToInitialState();
+        connectionStatus.setText("");
+        stopScanButton.setVisibility(View.GONE);
+        scanButton.setVisibility(View.VISIBLE);
+
+        if (discoveredDeviceListAdapter.getCount() > 0) {
+            connectionStatus.setText("Select a device to connect to.");
+            connectButton.setVisibility(View.VISIBLE);
+        } else {
+            discoveredDevicesText.setVisibility(View.GONE);
+        }
+
         viewModel.stopScan();
     }
 }

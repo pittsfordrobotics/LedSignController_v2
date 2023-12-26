@@ -7,7 +7,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.bleledcontroller.R;
@@ -23,11 +26,14 @@ import com.example.bleledcontroller.views.ConfigurationView;
 public class ConfigurationFragment extends ConfigurationView {
 
     private ConnectedDevice connectedDevice = null;
-
     private ViewModel viewModel = null;
     private TextView statusText;
     private Button btnUpdate;
     private Button btnReload;
+    private Spinner displayPatternList;
+    private Spinner colorPatternList;
+    private TextView[] parameterNames;
+    private SeekBar[] parameterValues;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -79,6 +85,28 @@ public class ConfigurationFragment extends ConfigurationView {
         btnReload.setOnClickListener(this::onReload);
         btnUpdate = view.findViewById(R.id.btnUpdate);
         btnUpdate.setOnClickListener(this::onUpdate);
+        colorPatternList = view.findViewById(R.id.colorPattern);
+        colorPatternList.setOnItemSelectedListener(this.onColorPatternSelected);
+        displayPatternList = view.findViewById(R.id.displayPattern);
+        displayPatternList.setOnItemSelectedListener(this.onDisplayPatternSelected);
+
+        parameterNames = new TextView[] {
+                view.findViewById(R.id.txtParam1),
+                view.findViewById(R.id.txtParam2),
+                view.findViewById(R.id.txtParam3),
+                view.findViewById(R.id.txtParam4),
+                view.findViewById(R.id.txtParam5),
+                view.findViewById(R.id.txtParam6)
+        };
+
+        parameterValues = new SeekBar[] {
+                view.findViewById(R.id.seekBarParam1),
+                view.findViewById(R.id.seekBarParam2),
+                view.findViewById(R.id.seekBarParam3),
+                view.findViewById(R.id.seekBarParam4),
+                view.findViewById(R.id.seekBarParam5),
+                view.findViewById(R.id.seekBarParam6)
+        };
     }
 
     private void refreshDisplay() {
@@ -91,11 +119,23 @@ public class ConfigurationFragment extends ConfigurationView {
             statusText.setText("Not connected.");
             btnReload.setEnabled(false);
             btnUpdate.setEnabled(false);
-            // hide / mark invisible other stuff...
+            displayPatternList.setEnabled(false);
+            colorPatternList.setEnabled(false);
+
+            for (TextView parameterName:parameterNames) {
+                parameterName.setVisibility(View.GONE);
+            }
+
+            for (SeekBar parameterValue:parameterValues) {
+                parameterValue.setVisibility(View.GONE);
+            }
         } else {
             statusText.setText("Connected to: " + connectedDevice.getName());
             btnReload.setEnabled(true);
             btnUpdate.setEnabled(true);
+            displayPatternList.setEnabled(true);
+            colorPatternList.setEnabled(true);
+
             // unhide other stuff...
         }
     }
@@ -107,4 +147,26 @@ public class ConfigurationFragment extends ConfigurationView {
     private void onUpdate(View v) {
         viewModel.updateConfiguration(connectedDevice);
     }
+
+    private AdapterView.OnItemSelectedListener onColorPatternSelected = new AdapterView.OnItemSelectedListener() {
+        // Update the list of parameters
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
+    };
+
+    private AdapterView.OnItemSelectedListener onDisplayPatternSelected = new AdapterView.OnItemSelectedListener() {
+        // Update the list of parameters
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
+    };
 }

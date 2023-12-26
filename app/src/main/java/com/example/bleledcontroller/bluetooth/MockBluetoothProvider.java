@@ -34,6 +34,7 @@ public class MockBluetoothProvider implements BluetoothProvider {
         }
 
         MockDevice d = new MockDevice(device.getName());
+
         handler.postDelayed(() -> onConnectedCallback.accept(d), 1000);
     }
 

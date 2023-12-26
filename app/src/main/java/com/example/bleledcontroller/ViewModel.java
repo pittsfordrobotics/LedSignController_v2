@@ -62,6 +62,14 @@ public class ViewModel {
         btProvider.connectToDevice(device, this::onDeviceConnected, this::onConnectionFailed);
     }
 
+    public void reloadConfiguration(ConnectedDevice device) {
+
+    }
+
+    public void updateConfiguration(ConnectedDevice device) {
+
+    }
+
     public void disconnect() {
         btProvider.disconnect();
         logMessage("Disconnected.");

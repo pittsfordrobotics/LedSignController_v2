@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.bleledcontroller.R;
 import com.example.bleledcontroller.ViewModel;
@@ -20,7 +22,12 @@ import com.example.bleledcontroller.views.ConfigurationView;
  */
 public class ConfigurationFragment extends ConfigurationView {
 
+    private ConnectedDevice connectedDevice = null;
+
     private ViewModel viewModel = null;
+    private TextView statusText;
+    private Button btnUpdate;
+    private Button btnReload;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -48,16 +55,56 @@ public class ConfigurationFragment extends ConfigurationView {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_configuration, container, false);
+        View view = inflater.inflate(R.layout.fragment_configuration, container, false);
+        initialize(view);
+        refreshDisplay();
+        return view;
     }
 
     @Override
     public void setConnectedDevice(ConnectedDevice device) {
-
+        connectedDevice = device;
+        refreshDisplay();
     }
 
     @Override
     public void setDisconnectedState() {
+        connectedDevice = null;
+        refreshDisplay();
+    }
 
+    private void initialize(View view) {
+        statusText = view.findViewById(R.id.configStatus);
+        btnReload = view.findViewById(R.id.btnReload);
+        btnReload.setOnClickListener(this::onReload);
+        btnUpdate = view.findViewById(R.id.btnUpdate);
+        btnUpdate.setOnClickListener(this::onUpdate);
+    }
+
+    private void refreshDisplay() {
+        if (statusText == null) {
+            // We haven't been initialized yet.
+            return;
+        }
+
+        if (connectedDevice == null) {
+            statusText.setText("Not connected.");
+            btnReload.setEnabled(false);
+            btnUpdate.setEnabled(false);
+            // hide / mark invisible other stuff...
+        } else {
+            statusText.setText("Connected to: " + connectedDevice.getName());
+            btnReload.setEnabled(true);
+            btnUpdate.setEnabled(true);
+            // unhide other stuff...
+        }
+    }
+
+    private void onReload(View v) {
+        viewModel.reloadConfiguration(connectedDevice);
+    }
+
+    private void onUpdate(View v) {
+        viewModel.updateConfiguration(connectedDevice);
     }
 }

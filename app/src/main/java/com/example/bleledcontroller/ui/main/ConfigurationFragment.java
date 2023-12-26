@@ -132,14 +132,7 @@ public class ConfigurationFragment extends ConfigurationView {
             btnUpdate.setEnabled(false);
             displayPatternList.setEnabled(false);
             colorPatternList.setEnabled(false);
-
-            for (TextView parameterName:parameterNames) {
-                parameterName.setVisibility(View.GONE);
-            }
-
-            for (SeekBar parameterValue:parameterValues) {
-                parameterValue.setVisibility(View.GONE);
-            }
+            clearParameterList();
         } else {
             statusText.setText("Connected to: " + connectedDevice.getName());
             btnReload.setEnabled(true);
@@ -151,10 +144,44 @@ public class ConfigurationFragment extends ConfigurationView {
             List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
             colorPatternListAdapter.clear();
             colorPatternListAdapter.addAll(colorOptions);
-
             List<DisplayPatternOptionData> displayOptions = connectedDevice.getPatternOptionData().getDisplayPatternOptions();
             displayPatternListAdapter.clear();
             displayPatternListAdapter.addAll(displayOptions);
+        }
+    }
+
+    private void clearParameterList() {
+        for (TextView parameterName:parameterNames) {
+            parameterName.setVisibility(View.GONE);
+        }
+
+        for (SeekBar parameterValue:parameterValues) {
+            parameterValue.setVisibility(View.GONE);
+        }
+    }
+
+    private void resetParameterList() {
+        clearParameterList();
+
+        if (colorPatternList.getSelectedItemId() < 0 || displayPatternList.getSelectedItemId() < 0) {
+            return;
+        }
+
+        ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
+        int paramNumber = 0;
+        for (String parameterName:colorData.getParameterNames()) {
+            parameterNames[paramNumber].setVisibility(View.VISIBLE);
+            parameterValues[paramNumber].setVisibility(View.VISIBLE);
+            parameterNames[paramNumber].setText(parameterName);
+            paramNumber++;
+        }
+
+        DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
+        for (String parameterName:displayData.getParameterNames()) {
+            parameterNames[paramNumber].setVisibility(View.VISIBLE);
+            parameterValues[paramNumber].setVisibility(View.VISIBLE);
+            parameterNames[paramNumber].setText(parameterName);
+            paramNumber++;
         }
     }
 
@@ -167,9 +194,9 @@ public class ConfigurationFragment extends ConfigurationView {
     }
 
     private AdapterView.OnItemSelectedListener onColorPatternSelected = new AdapterView.OnItemSelectedListener() {
-        // Update the list of parameters
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            resetParameterList();
         }
 
         @Override
@@ -178,9 +205,9 @@ public class ConfigurationFragment extends ConfigurationView {
     };
 
     private AdapterView.OnItemSelectedListener onDisplayPatternSelected = new AdapterView.OnItemSelectedListener() {
-        // Update the list of parameters
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            resetParameterList();
         }
 
         @Override

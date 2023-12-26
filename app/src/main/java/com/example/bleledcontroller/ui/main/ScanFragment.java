@@ -82,6 +82,14 @@ public class ScanFragment extends ScanView {
     }
 
     @Override
+    public void setConnectionFailed() {
+        connectionStatus.setText("Connection failed!");
+        scanButton.setEnabled(true);
+        connectButton.setEnabled(true);
+        deviceList.setEnabled(true);
+    }
+
+    @Override
     public void setDisconnectedState() {
         resetToInitialState();
     }

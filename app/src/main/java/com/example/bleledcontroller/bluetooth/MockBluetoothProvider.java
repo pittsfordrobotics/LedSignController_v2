@@ -2,6 +2,7 @@ package com.example.bleledcontroller.bluetooth;
 
 import android.os.Handler;
 
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class MockBluetoothProvider implements BluetoothProvider {
@@ -23,29 +24,17 @@ public class MockBluetoothProvider implements BluetoothProvider {
     }
 
     @Override
-    public ConnectedDevice connectToDevice(BleDevice device) {
-        String name = device.getName();
-        return new ConnectedDevice() {
-            @Override
-            public Object getPatternOptionData() {
-                return null;
-            }
+    public void connectToDevice(BleDevice device, Consumer<ConnectedDevice> onConnectedCallback, Consumer<BleDevice> onConnectionFailedCallback) {
+        // Pretend to fail to connect to sign 2.
+        boolean shouldFail = device.getName().contains("sign 2");
 
-            @Override
-            public Object getCurrentPatternData() {
-                return null;
-            }
+        if (shouldFail) {
+            handler.postDelayed(() -> onConnectionFailedCallback.accept(device), 1000);
+            return;
+        }
 
-            @Override
-            public void setPatternData(Object patternData) {
-
-            }
-
-            @Override
-            public String getName() {
-                return name;
-            }
-        };
+        MockDevice d = new MockDevice(device.getName());
+        handler.postDelayed(() -> onConnectedCallback.accept(d), 1000);
     }
 
     @Override

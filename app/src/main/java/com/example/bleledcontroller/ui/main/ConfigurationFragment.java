@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.bleledcontroller.R;
+import com.example.bleledcontroller.bluetooth.ConnectedDevice;
 import com.example.bleledcontroller.views.ConfigurationView;
 
 /**
@@ -45,5 +46,10 @@ public class ConfigurationFragment extends ConfigurationView {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_configuration, container, false);
+    }
+
+    @Override
+    public void setConnectedDevice(ConnectedDevice device) {
+
     }
 }

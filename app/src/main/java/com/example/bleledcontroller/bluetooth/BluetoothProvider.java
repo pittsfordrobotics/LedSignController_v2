@@ -7,7 +7,7 @@ public interface BluetoothProvider {
 
     void stopScan();
 
-    ConnectedDevice connectToDevice(BleDevice device);
+    void connectToDevice(BleDevice device, Consumer<ConnectedDevice> onConnectedCallback, Consumer<BleDevice> onConnectionFailedCallback);
 
     void disconnect();
 }

@@ -59,8 +59,7 @@ public class ViewModel {
     public void connect(BleDevice device)
     {
         logMessage("Pretending to connect to device: " + device.getName());
-        ConnectedDevice connectedDevice = btProvider.connectToDevice(device);
-        scanView.setConnectedDevice(connectedDevice);
+        btProvider.connectToDevice(device, this::onDeviceConnected, this::onConnectionFailed);
     }
 
     public void disconnect() {
@@ -92,5 +91,16 @@ public class ViewModel {
     private void onDeviceDiscovered(BleDevice device) {
         logMessage("Discovered device: " + device.getName());
         scanView.addDiscoveredDevice(device);
+    }
+
+    private void onDeviceConnected(ConnectedDevice device) {
+        logMessage("Connected to device: " + device.getName());
+        scanView.setConnectedDevice(device);
+        configurationView.setConnectedDevice(device);
+    }
+
+    private void onConnectionFailed(BleDevice device) {
+        logMessage("Failed to connect to device: " + device.getName());
+        scanView.setConnectionFailed();
     }
 }

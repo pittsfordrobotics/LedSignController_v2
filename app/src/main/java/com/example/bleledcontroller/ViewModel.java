@@ -27,7 +27,7 @@ public class ViewModel {
     private final BluetoothProvider btProvider = new MockBluetoothProvider();
 
     public ViewModel() {
-        init(DebugLogFragment.newInstance(this), ScanFragment.newInstance(this), ConfigurationFragment.newInstance());
+        init(DebugLogFragment.newInstance(this), ScanFragment.newInstance(this), ConfigurationFragment.newInstance(this));
     }
 
     public ViewModel(DebugView debugView, ScanView scanView, ConfigurationView configurationView) {
@@ -66,6 +66,7 @@ public class ViewModel {
         btProvider.disconnect();
         logMessage("Disconnected.");
         scanView.setDisconnectedState();
+        configurationView.setDisconnectedState();
     }
 
     public void logMessage(String message) {

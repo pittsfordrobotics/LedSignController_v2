@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.bleledcontroller.R;
+import com.example.bleledcontroller.ViewModel;
 import com.example.bleledcontroller.bluetooth.ConnectedDevice;
 import com.example.bleledcontroller.views.ConfigurationView;
 
@@ -18,6 +19,8 @@ import com.example.bleledcontroller.views.ConfigurationView;
  * create an instance of this fragment.
  */
 public class ConfigurationFragment extends ConfigurationView {
+
+    private ViewModel viewModel = null;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -30,9 +33,9 @@ public class ConfigurationFragment extends ConfigurationView {
      * @return A new instance of fragment ConfigurationFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ConfigurationFragment newInstance() {
+    public static ConfigurationFragment newInstance(ViewModel viewModel) {
         ConfigurationFragment fragment = new ConfigurationFragment();
-        Bundle args = new Bundle();
+        fragment.viewModel = viewModel;
         return fragment;
     }
 
@@ -50,6 +53,11 @@ public class ConfigurationFragment extends ConfigurationView {
 
     @Override
     public void setConnectedDevice(ConnectedDevice device) {
+
+    }
+
+    @Override
+    public void setDisconnectedState() {
 
     }
 }

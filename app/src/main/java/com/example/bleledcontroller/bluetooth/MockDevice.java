@@ -1,8 +1,10 @@
 package com.example.bleledcontroller.bluetooth;
 
+import com.example.bleledcontroller.signdata.PatternOptionData;
+
 public class MockDevice extends ConnectedDevice {
     private String name;
-    private Object patternOptionData;
+    private PatternOptionData patternOptionData;
 
     MockDevice(String name) {
         this.name = name;
@@ -13,12 +15,12 @@ public class MockDevice extends ConnectedDevice {
         return name;
     }
 
-    public void setPatternOptionData(Object data) {
+    public void setPatternOptionData(PatternOptionData data) {
         patternOptionData = data;
     }
 
     @Override
-    public Object getPatternOptionData() {
+    public PatternOptionData getPatternOptionData() {
         return patternOptionData;
     }
 

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -16,7 +17,11 @@ import android.widget.TextView;
 import com.example.bleledcontroller.R;
 import com.example.bleledcontroller.ViewModel;
 import com.example.bleledcontroller.bluetooth.ConnectedDevice;
+import com.example.bleledcontroller.signdata.ColorPatternOptionData;
+import com.example.bleledcontroller.signdata.DisplayPatternOptionData;
 import com.example.bleledcontroller.views.ConfigurationView;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,6 +39,8 @@ public class ConfigurationFragment extends ConfigurationView {
     private Spinner colorPatternList;
     private TextView[] parameterNames;
     private SeekBar[] parameterValues;
+    private ArrayAdapter<ColorPatternOptionData> colorPatternListAdapter;
+    private ArrayAdapter<DisplayPatternOptionData> displayPatternListAdapter;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -86,8 +93,12 @@ public class ConfigurationFragment extends ConfigurationView {
         btnUpdate = view.findViewById(R.id.btnUpdate);
         btnUpdate.setOnClickListener(this::onUpdate);
         colorPatternList = view.findViewById(R.id.colorPattern);
+        colorPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        colorPatternList.setAdapter(colorPatternListAdapter);
         colorPatternList.setOnItemSelectedListener(this.onColorPatternSelected);
         displayPatternList = view.findViewById(R.id.displayPattern);
+        displayPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        displayPatternList.setAdapter(displayPatternListAdapter);
         displayPatternList.setOnItemSelectedListener(this.onDisplayPatternSelected);
 
         parameterNames = new TextView[] {
@@ -136,7 +147,14 @@ public class ConfigurationFragment extends ConfigurationView {
             displayPatternList.setEnabled(true);
             colorPatternList.setEnabled(true);
 
-            // unhide other stuff...
+            // Populate dropdowns
+            List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
+            colorPatternListAdapter.clear();
+            colorPatternListAdapter.addAll(colorOptions);
+
+            List<DisplayPatternOptionData> displayOptions = connectedDevice.getPatternOptionData().getDisplayPatternOptions();
+            displayPatternListAdapter.clear();
+            displayPatternListAdapter.addAll(displayOptions);
         }
     }
 

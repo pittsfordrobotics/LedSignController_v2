@@ -2,6 +2,10 @@ package com.example.bleledcontroller.bluetooth;
 
 import android.os.Handler;
 
+import com.example.bleledcontroller.signdata.ColorPatternOptionData;
+import com.example.bleledcontroller.signdata.DisplayPatternOptionData;
+import com.example.bleledcontroller.signdata.PatternOptionData;
+
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -34,6 +38,29 @@ public class MockBluetoothProvider implements BluetoothProvider {
         }
 
         MockDevice d = new MockDevice(device.getName());
+
+        // configure the set of default pattern options
+        ColorPatternOptionData colorData1 = new ColorPatternOptionData("Single color", 1, 1);
+        ColorPatternOptionData colorData2 = new ColorPatternOptionData("Two color", 2, 2);
+        colorData2.addParameterName("Color 1 duration");
+        colorData2.addParameterName("Color 2 duration");
+        ColorPatternOptionData colorData3 = new ColorPatternOptionData("Rainbow", 3, 0);
+        colorData3.addParameterName("Hue increment");
+        DisplayPatternOptionData displayData1 = new DisplayPatternOptionData("Solid", 0);
+        DisplayPatternOptionData displayData2 = new DisplayPatternOptionData("Right", 1);
+        DisplayPatternOptionData displayData3 = new DisplayPatternOptionData("Down", 4);
+        DisplayPatternOptionData displayData4 = new DisplayPatternOptionData("Random", 6);
+        displayData4.addParameterName("Update amount");
+        PatternOptionData data = new PatternOptionData();
+        data.addColorPatternOption(colorData1);
+        data.addColorPatternOption(colorData2);
+        data.addColorPatternOption(colorData3);
+        data.addDisplayPatternOption(displayData1);
+        data.addDisplayPatternOption(displayData2);
+        data.addDisplayPatternOption(displayData3);
+        data.addDisplayPatternOption(displayData4);
+
+        d.setPatternOptionData(data);
 
         handler.postDelayed(() -> onConnectedCallback.accept(d), 1000);
     }

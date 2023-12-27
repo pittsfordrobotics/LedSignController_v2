@@ -94,7 +94,7 @@ public class ConfigurationFragment extends ConfigurationView {
     }
 
     private void initialize(View view) {
-        //TableRowFragment.setValueDisplay(true);
+        TableRowFragment.setValueDisplay(true);
         statusText = view.findViewById(R.id.configStatus);
         btnReload = view.findViewById(R.id.btnReload);
         btnReload.setOnClickListener(this::onReload);

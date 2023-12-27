@@ -3,6 +3,8 @@ package com.example.bleledcontroller.ui.main;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.example.bleledcontroller.R;
@@ -20,6 +24,8 @@ import com.example.bleledcontroller.bluetooth.ConnectedDevice;
 import com.example.bleledcontroller.signdata.ColorPatternOptionData;
 import com.example.bleledcontroller.signdata.DisplayPatternOptionData;
 import com.example.bleledcontroller.views.ConfigurationView;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -39,8 +45,11 @@ public class ConfigurationFragment extends ConfigurationView {
     private Spinner colorPatternList;
     private TextView[] parameterNames;
     private SeekBar[] parameterValues;
+    private SeekBar brightness;
+    private SeekBar speed;
     private ArrayAdapter<ColorPatternOptionData> colorPatternListAdapter;
     private ArrayAdapter<DisplayPatternOptionData> displayPatternListAdapter;
+    private TableRowFragment testRow;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -100,6 +109,8 @@ public class ConfigurationFragment extends ConfigurationView {
         displayPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
         displayPatternList.setAdapter(displayPatternListAdapter);
         displayPatternList.setOnItemSelectedListener(this.onDisplayPatternSelected);
+        brightness = view.findViewById(R.id.seekBarBrightness);
+        speed = view.findViewById(R.id.seekBarSpeed);
 
         parameterNames = new TextView[] {
                 view.findViewById(R.id.txtParam1),
@@ -118,6 +129,12 @@ public class ConfigurationFragment extends ConfigurationView {
                 view.findViewById(R.id.seekBarParam5),
                 view.findViewById(R.id.seekBarParam6)
         };
+
+        testRow = TableRowFragment.newInstance("Dummy Param1");
+        FragmentManager fm = getParentFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.configTable, testRow);
+        ft.commit();
     }
 
     private void refreshDisplay() {
@@ -132,13 +149,19 @@ public class ConfigurationFragment extends ConfigurationView {
             btnUpdate.setEnabled(false);
             displayPatternList.setEnabled(false);
             colorPatternList.setEnabled(false);
+            brightness.setEnabled(false);
+            speed.setEnabled(false);
             clearParameterList();
+            testRow.setEnabled(false);
         } else {
             statusText.setText("Connected to: " + connectedDevice.getName());
             btnReload.setEnabled(true);
             btnUpdate.setEnabled(true);
             displayPatternList.setEnabled(true);
             colorPatternList.setEnabled(true);
+            brightness.setEnabled(true);
+            speed.setEnabled(true);
+            testRow.setEnabled(true);
 
             // Populate dropdowns
             List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();

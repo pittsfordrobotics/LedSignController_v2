@@ -19,6 +19,7 @@
             android:text="Not connected." />
 
         <TableLayout
+            android:id="@+id/configTable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:stretchColumns="1">
@@ -60,10 +61,62 @@
                     android:layout_column="1"
                     android:id="@+id/displayPattern"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
+                    android:layout_height="wrap_content" />
             </TableRow>
 
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/txtBrightness"
+                    android:layout_column="0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center"
+                    android:textAlignment="viewEnd"
+                    android:text="Brightness: " />
+
+                <SeekBar
+                    android:id="@+id/seekBarBrightness"
+                    android:layout_column="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:min="0"
+                    android:max="255"
+                    />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/txtSpeed"
+                    android:layout_column="0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center"
+                    android:textAlignment="viewEnd"
+                    android:text="Speed: " />
+
+                <SeekBar
+                    android:id="@+id/seekBarSpeed"
+                    android:layout_column="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:min="0"
+                    android:max="255"
+                    />
+
+            </TableRow>
+
+            <!--
+            TODO:
+            Try to make these rows into fragments or some other
+            self-contained entity.
+            -->
             <TableRow
                 android:id="@+id/trParam1"
                 android:layout_width="match_parent"
@@ -82,7 +135,7 @@
                     android:id="@+id/seekBarParam1"
                     android:layout_column="1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="25dp"
                     android:min="0"
                     android:max="255"
                     />
@@ -107,7 +160,7 @@
                     android:id="@+id/seekBarParam2"
                     android:layout_column="1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="25dp"
                     android:min="0"
                     android:max="255"
                     />
@@ -132,7 +185,7 @@
                     android:id="@+id/seekBarParam3"
                     android:layout_column="1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="25dp"
                     android:min="0"
                     android:max="255"
                     />
@@ -157,7 +210,7 @@
                     android:id="@+id/seekBarParam4"
                     android:layout_column="1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="25dp"
                     android:min="0"
                     android:max="255"
                     />
@@ -182,7 +235,7 @@
                     android:id="@+id/seekBarParam5"
                     android:layout_column="1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="25dp"
                     android:min="0"
                     android:max="255"
                     />
@@ -207,7 +260,7 @@
                     android:id="@+id/seekBarParam6"
                     android:layout_column="1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="25dp"
                     android:min="0"
                     android:max="255"
                     />

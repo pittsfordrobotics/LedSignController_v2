@@ -43,13 +43,11 @@ public class ConfigurationFragment extends ConfigurationView {
     private Button btnReload;
     private Spinner displayPatternList;
     private Spinner colorPatternList;
-    private TextView[] parameterNames;
-    private SeekBar[] parameterValues;
-    private SeekBar brightness;
-    private SeekBar speed;
+    private TableRowFragment brightness;
+    private TableRowFragment speed;
+    private TableRowFragment[] parameters;
     private ArrayAdapter<ColorPatternOptionData> colorPatternListAdapter;
     private ArrayAdapter<DisplayPatternOptionData> displayPatternListAdapter;
-    private TableRowFragment testRow;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -96,6 +94,7 @@ public class ConfigurationFragment extends ConfigurationView {
     }
 
     private void initialize(View view) {
+        //TableRowFragment.setValueDisplay(true);
         statusText = view.findViewById(R.id.configStatus);
         btnReload = view.findViewById(R.id.btnReload);
         btnReload.setOnClickListener(this::onReload);
@@ -109,31 +108,26 @@ public class ConfigurationFragment extends ConfigurationView {
         displayPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
         displayPatternList.setAdapter(displayPatternListAdapter);
         displayPatternList.setOnItemSelectedListener(this.onDisplayPatternSelected);
-        brightness = view.findViewById(R.id.seekBarBrightness);
-        speed = view.findViewById(R.id.seekBarSpeed);
+        brightness = TableRowFragment.newInstance("Brightness");
+        speed = TableRowFragment.newInstance("Speed");
 
-        parameterNames = new TextView[] {
-                view.findViewById(R.id.txtParam1),
-                view.findViewById(R.id.txtParam2),
-                view.findViewById(R.id.txtParam3),
-                view.findViewById(R.id.txtParam4),
-                view.findViewById(R.id.txtParam5),
-                view.findViewById(R.id.txtParam6)
+        parameters = new TableRowFragment[] {
+                TableRowFragment.newInstance("Parameter 1"),
+                TableRowFragment.newInstance("Parameter 2"),
+                TableRowFragment.newInstance("Parameter 3"),
+                TableRowFragment.newInstance("Parameter 4"),
+                TableRowFragment.newInstance("Parameter 5"),
+                TableRowFragment.newInstance("Parameter 6")
         };
 
-        parameterValues = new SeekBar[] {
-                view.findViewById(R.id.seekBarParam1),
-                view.findViewById(R.id.seekBarParam2),
-                view.findViewById(R.id.seekBarParam3),
-                view.findViewById(R.id.seekBarParam4),
-                view.findViewById(R.id.seekBarParam5),
-                view.findViewById(R.id.seekBarParam6)
-        };
-
-        testRow = TableRowFragment.newInstance("Dummy Param1");
+        // Dynamically add the parameter sliders
         FragmentManager fm = getParentFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.configTable, testRow);
+        ft.add(R.id.configTable, brightness);
+        ft.add(R.id.configTable, speed);
+        for (TableRowFragment parameter:parameters) {
+            ft.add(R.id.configTable, parameter);
+        }
         ft.commit();
     }
 
@@ -152,7 +146,6 @@ public class ConfigurationFragment extends ConfigurationView {
             brightness.setEnabled(false);
             speed.setEnabled(false);
             clearParameterList();
-            testRow.setEnabled(false);
         } else {
             statusText.setText("Connected to: " + connectedDevice.getName());
             btnReload.setEnabled(true);
@@ -161,7 +154,6 @@ public class ConfigurationFragment extends ConfigurationView {
             colorPatternList.setEnabled(true);
             brightness.setEnabled(true);
             speed.setEnabled(true);
-            testRow.setEnabled(true);
 
             // Populate dropdowns
             List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
@@ -174,12 +166,8 @@ public class ConfigurationFragment extends ConfigurationView {
     }
 
     private void clearParameterList() {
-        for (TextView parameterName:parameterNames) {
-            parameterName.setVisibility(View.GONE);
-        }
-
-        for (SeekBar parameterValue:parameterValues) {
-            parameterValue.setVisibility(View.GONE);
+        for (TableRowFragment parameter:parameters) {
+            parameter.setVisibility(View.GONE);
         }
     }
 
@@ -193,17 +181,15 @@ public class ConfigurationFragment extends ConfigurationView {
         ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
         int paramNumber = 0;
         for (String parameterName:colorData.getParameterNames()) {
-            parameterNames[paramNumber].setVisibility(View.VISIBLE);
-            parameterValues[paramNumber].setVisibility(View.VISIBLE);
-            parameterNames[paramNumber].setText(parameterName);
+            parameters[paramNumber].setParameterName(parameterName);
+            parameters[paramNumber].setVisibility(View.VISIBLE);
             paramNumber++;
         }
 
         DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
         for (String parameterName:displayData.getParameterNames()) {
-            parameterNames[paramNumber].setVisibility(View.VISIBLE);
-            parameterValues[paramNumber].setVisibility(View.VISIBLE);
-            parameterNames[paramNumber].setText(parameterName);
+            parameters[paramNumber].setParameterName(parameterName);
+            parameters[paramNumber].setVisibility(View.VISIBLE);
             paramNumber++;
         }
     }

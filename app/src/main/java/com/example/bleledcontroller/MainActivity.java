@@ -2,6 +2,9 @@ package com.example.bleledcontroller;
 
 import android.os.Bundle;
 
+import com.example.bleledcontroller.bluetooth.AndroidBluetoothProvider;
+import com.example.bleledcontroller.bluetooth.BluetoothProvider;
+import com.example.bleledcontroller.bluetooth.MockBluetoothProvider;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +13,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final ViewModel viewModel = new ViewModel();
+    private boolean useMockProvider = true;
+    private ViewModel viewModel;
+
+    public MainActivity() {
+        BluetoothProvider btProvider = CreateBluetoothProvider();
+        viewModel = new ViewModel(btProvider);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
         configurePager(pager, tabLayout, viewModel.getFragmentStateAdapter(getSupportFragmentManager(), getLifecycle()));
 
         viewModel.logMessage("Initialized.");
+    }
+
+    private BluetoothProvider CreateBluetoothProvider() {
+        if (useMockProvider) {
+            return new MockBluetoothProvider();
+        } else {
+            AndroidBluetoothProvider provider = new AndroidBluetoothProvider();
+            provider.setLogger(viewModel::logMessage);
+            return provider;
+        }
     }
 
     private void configureTabs(TabLayout tabLayout, ViewPager2 pager) {

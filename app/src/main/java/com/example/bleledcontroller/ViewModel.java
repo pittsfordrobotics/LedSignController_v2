@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.bleledcontroller.bluetooth.AndroidBluetoothProvider;
 import com.example.bleledcontroller.bluetooth.BleDevice;
 import com.example.bleledcontroller.bluetooth.BluetoothProvider;
 import com.example.bleledcontroller.bluetooth.ConnectedDevice;
@@ -24,14 +25,17 @@ public class ViewModel {
     private ScanView scanView = null;
     private ConfigurationView configurationView = null;
     private Fragment[] uiViews = new Fragment[] {};
-    private final BluetoothProvider btProvider = new MockBluetoothProvider();
 
-    public ViewModel() {
+    private BluetoothProvider btProvider;
+
+    public ViewModel(BluetoothProvider bluetoothProvider) {
         init(DebugLogFragment.newInstance(this), ScanFragment.newInstance(this), ConfigurationFragment.newInstance(this));
+        this.btProvider = bluetoothProvider;
     }
 
-    public ViewModel(DebugView debugView, ScanView scanView, ConfigurationView configurationView) {
+    public ViewModel(BluetoothProvider bluetoothProvider, DebugView debugView, ScanView scanView, ConfigurationView configurationView) {
         init(debugView, scanView, configurationView);
+        this.btProvider = bluetoothProvider;
     }
 
     private void init(DebugView debugView, ScanView scanView, ConfigurationView configurationView) {

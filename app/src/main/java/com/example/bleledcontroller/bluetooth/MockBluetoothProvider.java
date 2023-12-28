@@ -1,9 +1,11 @@
 package com.example.bleledcontroller.bluetooth;
 
+import android.graphics.Color;
 import android.os.Handler;
 
 import com.example.bleledcontroller.signdata.ColorPatternOptionData;
 import com.example.bleledcontroller.signdata.DisplayPatternOptionData;
+import com.example.bleledcontroller.signdata.PatternData;
 import com.example.bleledcontroller.signdata.PatternOptionData;
 
 import java.util.Random;
@@ -51,16 +53,27 @@ public class MockBluetoothProvider implements BluetoothProvider {
         DisplayPatternOptionData displayData3 = new DisplayPatternOptionData("Down", 4);
         DisplayPatternOptionData displayData4 = new DisplayPatternOptionData("Random", 6);
         displayData4.addParameterName("Update amount");
-        PatternOptionData data = new PatternOptionData();
-        data.addColorPatternOption(colorData1);
-        data.addColorPatternOption(colorData2);
-        data.addColorPatternOption(colorData3);
-        data.addDisplayPatternOption(displayData1);
-        data.addDisplayPatternOption(displayData2);
-        data.addDisplayPatternOption(displayData3);
-        data.addDisplayPatternOption(displayData4);
+        PatternOptionData optionData = new PatternOptionData();
+        optionData.addColorPatternOption(colorData1);
+        optionData.addColorPatternOption(colorData2);
+        optionData.addColorPatternOption(colorData3);
+        optionData.addDisplayPatternOption(displayData1);
+        optionData.addDisplayPatternOption(displayData2);
+        optionData.addDisplayPatternOption(displayData3);
+        optionData.addDisplayPatternOption(displayData4);
+        d.setPatternOptionData(optionData);
 
-        d.setPatternOptionData(data);
+        d.setBrightness((byte)123);
+        d.setSpeed((byte)55);
+
+        PatternData data = new PatternData();
+        data.setColor1(Color.RED);
+        data.setColor2(Color.GREEN);
+        data.setColorPattern((byte)1);
+        data.setDisplayPattern((byte)2);
+        data.setParameter1((byte)34);
+        data.setParameter2((byte)45);
+        d.setPatternData(data);
 
         handler.postDelayed(() -> onConnectedCallback.accept(d), 1000);
     }

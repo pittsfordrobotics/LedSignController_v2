@@ -26,6 +26,7 @@ import com.example.bleledcontroller.ViewModel;
 import com.example.bleledcontroller.bluetooth.ConnectedDevice;
 import com.example.bleledcontroller.signdata.ColorPatternOptionData;
 import com.example.bleledcontroller.signdata.DisplayPatternOptionData;
+import com.example.bleledcontroller.signdata.PatternData;
 import com.example.bleledcontroller.views.ConfigurationView;
 
 import org.w3c.dom.Text;
@@ -126,9 +127,9 @@ public class ConfigurationFragment extends ConfigurationView {
         blueFragment = TableRowFragment.newInstance("Blue");
         blueFragment.setOnValueChangeListener(onColorChangeListener);
         Button btnCancelColor = view.findViewById(R.id.cancelColor);
-        btnCancelColor.setOnClickListener(this::onCancelColorChooser);
+        btnCancelColor.setOnClickListener(this::onColorSelectionCanceled);
         Button btnSelectColor = view.findViewById(R.id.selectColor);
-        btnSelectColor.setOnClickListener(this::onCompleteColorChooser);
+        btnSelectColor.setOnClickListener(this::onColorSelectionCompleted);
 
         colorBars = new View[]{
             view.findViewById(R.id.color1),
@@ -138,8 +139,7 @@ public class ConfigurationFragment extends ConfigurationView {
         };
 
         for (View colorBar:colorBars) {
-            colorBar.setOnClickListener(this::onChangeColor);
-            ((TableRow)colorBar.getParent()).setVisibility(View.GONE);
+            colorBar.setOnClickListener(this::onColorSelectionStart);
         }
 
         parameters = new TableRowFragment[] {
@@ -171,36 +171,70 @@ public class ConfigurationFragment extends ConfigurationView {
             return;
         }
 
-        view.findViewById(R.id.colorChooser).setVisibility(View.GONE);
-
         if (connectedDevice == null) {
-            statusText.setText("Not connected.");
-            btnReload.setEnabled(false);
-            btnUpdate.setEnabled(false);
-            displayPatternList.setEnabled(false);
-            colorPatternList.setEnabled(false);
-            brightness.setEnabled(false);
-            speed.setEnabled(false);
-            clearParameterList();
+            setDisplayForDisconnectedDevice();
         } else {
-            statusText.setText("Connected to: " + connectedDevice.getName());
-            btnReload.setEnabled(true);
-            btnUpdate.setEnabled(true);
-            displayPatternList.setEnabled(true);
-            colorPatternList.setEnabled(true);
-            brightness.setEnabled(true);
-            speed.setEnabled(true);
-
-            // Populate dropdowns
-            List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
-            ArrayAdapter<ColorPatternOptionData> colorPatternAdapter = (ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter();
-            colorPatternAdapter.clear();
-            colorPatternAdapter.addAll(colorOptions);
-            List<DisplayPatternOptionData> displayOptions = connectedDevice.getPatternOptionData().getDisplayPatternOptions();
-            ArrayAdapter<DisplayPatternOptionData> displayPatternAdapter = (ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter();
-            displayPatternAdapter.clear();
-            displayPatternAdapter.addAll(displayOptions);
+            setDisplayForConnectedDevice();
         }
+
+        // Make sure the color chooser panel isn't showing, regardless of connection state.
+        view.findViewById(R.id.colorChooser).setVisibility(View.GONE);
+    }
+
+    private void setDisplayForDisconnectedDevice() {
+        statusText.setText("Not connected.");
+        btnReload.setEnabled(false);
+        btnUpdate.setEnabled(false);
+        displayPatternList.setEnabled(false);
+        ((ArrayAdapter<DisplayPatternOptionData>)displayPatternList.getAdapter()).clear();
+        colorPatternList.setEnabled(false);
+        ((ArrayAdapter<ColorPatternOptionData>)colorPatternList.getAdapter()).clear();
+        brightness.setEnabled(false);
+        speed.setEnabled(false);
+        clearParameterList();
+        clearColorList();
+    }
+
+    private void setDisplayForConnectedDevice() {
+        statusText.setText("Connected to: " + connectedDevice.getName());
+        btnReload.setEnabled(true);
+        btnUpdate.setEnabled(true);
+        displayPatternList.setEnabled(true);
+        colorPatternList.setEnabled(true);
+        brightness.setEnabled(true);
+        speed.setEnabled(true);
+
+        // Populate dropdowns
+        List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
+        ArrayAdapter<ColorPatternOptionData> colorPatternAdapter = (ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter();
+        colorPatternAdapter.clear();
+        colorPatternAdapter.addAll(colorOptions);
+        List<DisplayPatternOptionData> displayOptions = connectedDevice.getPatternOptionData().getDisplayPatternOptions();
+        ArrayAdapter<DisplayPatternOptionData> displayPatternAdapter = (ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter();
+        displayPatternAdapter.clear();
+        displayPatternAdapter.addAll(displayOptions);
+
+        // Set current values
+        brightness.setParameterValue(connectedDevice.getBrightness());
+        speed.setParameterValue(connectedDevice.getSpeed());
+        PatternData patternData = connectedDevice.getCurrentPatternData();
+        colorPatternList.setSelection(patternData.getColorPattern());
+        displayPatternList.setSelection(patternData.getDisplayPattern());
+
+        parameters[0].setParameterValue(patternData.getParameter1());
+        parameters[1].setParameterValue(patternData.getParameter2());
+        parameters[2].setParameterValue(patternData.getParameter3());
+        parameters[3].setParameterValue(patternData.getParameter4());
+        parameters[4].setParameterValue(patternData.getParameter5());
+        parameters[5].setParameterValue(patternData.getParameter6());
+
+        colorBars[0].setBackgroundColor(patternData.getColor1());
+        colorBars[1].setBackgroundColor(patternData.getColor2());
+        colorBars[2].setBackgroundColor(patternData.getColor3());
+        colorBars[3].setBackgroundColor(patternData.getColor4());
+
+        resetColorList();
+        resetParameterList();
     }
 
     private void clearParameterList() {
@@ -209,10 +243,14 @@ public class ConfigurationFragment extends ConfigurationView {
         }
     }
 
-    private void resetColorList() {
+    private void clearColorList() {
         for (View colorBar:colorBars) {
             ((TableRow)colorBar.getParent()).setVisibility(View.GONE);
         }
+    }
+
+    private void resetColorList() {
+        clearColorList();
 
         if (colorPatternList.getSelectedItemId() < 0) {
             return;
@@ -236,6 +274,7 @@ public class ConfigurationFragment extends ConfigurationView {
         for (String parameterName:colorData.getParameterNames()) {
             parameters[paramNumber].setParameterName(parameterName);
             parameters[paramNumber].setVisibility(View.VISIBLE);
+            parameters[paramNumber].setEnabled(true);
             paramNumber++;
         }
 
@@ -243,15 +282,38 @@ public class ConfigurationFragment extends ConfigurationView {
         for (String parameterName:displayData.getParameterNames()) {
             parameters[paramNumber].setParameterName(parameterName);
             parameters[paramNumber].setVisibility(View.VISIBLE);
+            parameters[paramNumber].setEnabled(true);
             paramNumber++;
         }
     }
 
+    private void disableAll() {
+        // Disable all elements in the UI.
+        colorChooser.setVisibility(View.GONE);
+        colorPatternList.setEnabled(false);
+        displayPatternList.setEnabled(false);
+        brightness.setEnabled(false);
+        speed.setEnabled(false);
+        for (View colorBar:colorBars) {
+            colorBar.setEnabled(false);
+        }
+        for (TableRowFragment parameter:parameters) {
+            parameter.setEnabled(false);
+        }
+        btnReload.setEnabled(false);
+        btnUpdate.setEnabled(false);
+    }
+
     private void onReload(View v) {
-        viewModel.reloadConfiguration(connectedDevice);
+        // For now, just refresh the display with what the device currently has.
+        // Longer term, call the ViewModel to reload the device characteristics.
+        //viewModel.reloadConfiguration(connectedDevice);
+        refreshDisplay();
     }
 
     private void onUpdate(View v) {
+        // Update the properties and send it to the ViewModel to be updated.
+        disableAll();
         viewModel.updateConfiguration(connectedDevice);
     }
 
@@ -283,36 +345,37 @@ public class ConfigurationFragment extends ConfigurationView {
         public void onValueChanged(TableRowFragment tableRowFragment, int i, boolean b) {
             int color = Color.rgb(redFragment.getParameterValue(), greenFragment.getParameterValue(), blueFragment.getParameterValue());
             View colorPreview = view.findViewById(R.id.colorPreview);
-            ColorDrawable drawable = new ColorDrawable();
-            drawable.setColor(color);
-            colorPreview.setBackground(drawable);
+            //ColorDrawable drawable = new ColorDrawable();
+            //drawable.setColor(color);
+            colorPreview.setBackgroundColor(color);
         }
     };
 
     private View colorBeingSelected = null;
 
-    private void onCompleteColorChooser(View v) {
+    private void onColorSelectionCompleted(View v) {
          if (colorBeingSelected != null) {
              View colorPreview = view.findViewById(R.id.colorPreview);
-             colorBeingSelected.setBackground(colorPreview.getBackground());
+             ColorDrawable drawable = (ColorDrawable) colorPreview.getBackground();
+             colorBeingSelected.setBackgroundColor(drawable.getColor());
          }
 
          colorBeingSelected = null;
          colorChooser.setVisibility(View.GONE);
     }
 
-    private void onCancelColorChooser(View v) {
+    private void onColorSelectionCanceled(View v) {
         colorBeingSelected = null;
         colorChooser.setVisibility(View.GONE);
     }
 
-    private void onChangeColor(View colorBar) {
-        ColorDrawable drawable = (ColorDrawable) colorBar.getBackground();
+    private void onColorSelectionStart(View sourceColorBar) {
+        ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
         int color = drawable.getColor();
         redFragment.setParameterValue(Color.red(color));
         greenFragment.setParameterValue(Color.green(color));
         blueFragment.setParameterValue(Color.blue(color));
-        colorBeingSelected = colorBar;
+        colorBeingSelected = sourceColorBar;
         colorChooser.setVisibility(View.VISIBLE);
     }
 }

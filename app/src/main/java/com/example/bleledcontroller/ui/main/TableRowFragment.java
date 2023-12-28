@@ -34,6 +34,7 @@ public class TableRowFragment extends Fragment {
     private TableRow rowContainer;
     private boolean enabled = true;
     private int visibility = View.VISIBLE;
+    private int lastSetValue = 0;
 
     public static void setValueDisplay(boolean showValue) {
         TableRowFragment.showValue = showValue;
@@ -90,7 +91,8 @@ public class TableRowFragment extends Fragment {
     }
 
     public void setParameterValue(int value) {
-        sbParameterValue.setProgress(value);
+        lastSetValue = value;
+        refresh();
     }
 
     public void setEnabled(boolean enabled) {
@@ -122,6 +124,7 @@ public class TableRowFragment extends Fragment {
 
         sbParameterValue.setEnabled(enabled);
         rowContainer.setVisibility(visibility);
+        sbParameterValue.setProgress(lastSetValue);
     }
 
     private TableRowFragment getOwningRowFragment() {

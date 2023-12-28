@@ -90,6 +90,11 @@ public class TableRowFragment extends Fragment {
         return sbParameterValue.getProgress();
     }
 
+    public void setParameterValue(byte value) {
+        int intValue = Byte.toUnsignedInt(value);
+        setParameterValue(intValue);
+    }
+
     public void setParameterValue(int value) {
         lastSetValue = value;
         refresh();
@@ -135,6 +140,7 @@ public class TableRowFragment extends Fragment {
         return new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                lastSetValue = i;
                 txtParameterValue.setText(String.valueOf(i));
                 if (onValueChangeListener != null) {
                     onValueChangeListener.onValueChanged(getOwningRowFragment(), i, b);

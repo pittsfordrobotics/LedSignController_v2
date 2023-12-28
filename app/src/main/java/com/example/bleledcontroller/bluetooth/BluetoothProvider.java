@@ -10,4 +10,8 @@ public interface BluetoothProvider {
     void connectToDevice(BleDevice device, Consumer<ConnectedDevice> onConnectedCallback, Consumer<BleDevice> onConnectionFailedCallback);
 
     void disconnect();
+
+    void readDeviceSettings(ConnectedDevice device, Consumer<ConnectedDevice> deviceReadCallback);
+
+    void updateDevice(ConnectedDevice device, Consumer<ConnectedDevice> deviceUpdatedCallback);
 }

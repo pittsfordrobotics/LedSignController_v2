@@ -63,11 +63,13 @@ public class ViewModel {
     }
 
     public void reloadConfiguration(ConnectedDevice device) {
-
+        // Notify UI elements that a reload is taking place?
+        btProvider.readDeviceSettings(device, this::onDeviceConnected);
     }
 
     public void updateConfiguration(ConnectedDevice device) {
-
+        // Notify UI elements that an update is taking place?
+        btProvider.updateDevice(device, this::onDeviceConnected);
     }
 
     public void disconnect() {

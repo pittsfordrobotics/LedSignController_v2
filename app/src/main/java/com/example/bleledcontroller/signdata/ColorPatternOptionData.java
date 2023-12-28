@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ColorPatternOptionData {
-    public String name;
-    public int id;
-    public int numberOfColors;
-    public ArrayList<String> parameterNames = new ArrayList<>();
+    private String name;
+    private int id;
+    private int numberOfColors;
+    private ArrayList<String> parameterNames = new ArrayList<>();
 
     public ColorPatternOptionData(String name, int id, int numberOfColors) {
         this.name = name;

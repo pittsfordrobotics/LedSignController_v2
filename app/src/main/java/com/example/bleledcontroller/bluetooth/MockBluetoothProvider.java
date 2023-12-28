@@ -67,12 +67,12 @@ public class MockBluetoothProvider implements BluetoothProvider {
         d.setSpeed((byte)55);
 
         PatternData data = new PatternData();
-        data.setColor1(Color.RED);
-        data.setColor2(Color.GREEN);
-        data.setColorPattern((byte)1);
-        data.setDisplayPattern((byte)2);
-        data.setParameter1((byte)34);
-        data.setParameter2((byte)45);
+        data.setColorValue(0, Color.RED);
+        data.setColorValue(1, Color.GREEN);
+        data.setColorPatternId((byte)2);
+        data.setDisplayPatternId((byte)4);
+        data.setParameterValue(0, (byte)34);
+        data.setParameterValue(1, (byte)45);
         d.setPatternData(data);
 
         handler.postDelayed(() -> onConnectedCallback.accept(d), 1000);
@@ -81,6 +81,16 @@ public class MockBluetoothProvider implements BluetoothProvider {
     @Override
     public void disconnect() {
 
+    }
+
+    @Override
+    public void readDeviceSettings(ConnectedDevice device, Consumer<ConnectedDevice> deviceReadCallback) {
+        handler.postDelayed(() -> deviceReadCallback.accept(device), 1000);
+    }
+
+    @Override
+    public void updateDevice(ConnectedDevice device, Consumer<ConnectedDevice> deviceUpdatedCallback) {
+        handler.postDelayed(() -> deviceUpdatedCallback.accept(device), 1000);
     }
 
     private void doFakeDeviceDiscovery(Consumer<BleDevice> discoveredDeviceCallback) {

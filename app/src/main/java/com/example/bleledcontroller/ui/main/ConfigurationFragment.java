@@ -33,6 +33,7 @@ import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -218,20 +219,34 @@ public class ConfigurationFragment extends ConfigurationView {
         brightness.setParameterValue(connectedDevice.getBrightness());
         speed.setParameterValue(connectedDevice.getSpeed());
         PatternData patternData = connectedDevice.getCurrentPatternData();
-        colorPatternList.setSelection(patternData.getColorPattern());
-        displayPatternList.setSelection(patternData.getDisplayPattern());
+        // Find the index of the current color/display pattern
+        int index = 0;
+        for (ColorPatternOptionData option:connectedDevice.getPatternOptionData().getColorPatternOptions()) {
+            if (option.getId() == patternData.getColorPatternId())
+            {
+                colorPatternList.setSelection(index);
+                break;
+            }
+            index++;
+        }
 
-        parameters[0].setParameterValue(patternData.getParameter1());
-        parameters[1].setParameterValue(patternData.getParameter2());
-        parameters[2].setParameterValue(patternData.getParameter3());
-        parameters[3].setParameterValue(patternData.getParameter4());
-        parameters[4].setParameterValue(patternData.getParameter5());
-        parameters[5].setParameterValue(patternData.getParameter6());
+        index = 0;
+        for (DisplayPatternOptionData option:connectedDevice.getPatternOptionData().getDisplayPatternOptions()) {
+            if (option.getId() == patternData.getDisplayPatternId())
+            {
+                displayPatternList.setSelection(index);
+                break;
+            }
+            index++;
+        }
 
-        colorBars[0].setBackgroundColor(patternData.getColor1());
-        colorBars[1].setBackgroundColor(patternData.getColor2());
-        colorBars[2].setBackgroundColor(patternData.getColor3());
-        colorBars[3].setBackgroundColor(patternData.getColor4());
+        for (int i = 0; i < parameters.length; i++) {
+            parameters[i].setParameterValue(patternData.getParameterValue(i));
+        }
+
+        for (int i = 0; i < colorBars.length; i++) {
+            colorBars[i].setBackgroundColor(patternData.getColorValue(i));
+        }
 
         resetColorList();
         resetParameterList();
@@ -259,6 +274,7 @@ public class ConfigurationFragment extends ConfigurationView {
         ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
         for (int i = 0; i < colorData.getNumberOfColors(); i++) {
             ((TableRow)colorBars[i].getParent()).setVisibility(View.VISIBLE);
+            colorBars[i].setEnabled(true);
         }
     }
 
@@ -305,15 +321,30 @@ public class ConfigurationFragment extends ConfigurationView {
     }
 
     private void onReload(View v) {
-        // For now, just refresh the display with what the device currently has.
-        // Longer term, call the ViewModel to reload the device characteristics.
-        //viewModel.reloadConfiguration(connectedDevice);
-        refreshDisplay();
+        statusText.setText("Refreshing device...");
+        // Need to put in some UI updates...
+        // ie, gray out some fields while we're doing the reload.
+        viewModel.reloadConfiguration(connectedDevice);
     }
 
     private void onUpdate(View v) {
+        statusText.setText("Updating device...");
         // Update the properties and send it to the ViewModel to be updated.
         disableAll();
+        connectedDevice.setBrightness((byte)brightness.getParameterValue());
+        connectedDevice.setSpeed((byte)speed.getParameterValue());
+        PatternData newPatternData = new PatternData();
+        newPatternData.setColorPatternId((byte)((ColorPatternOptionData)colorPatternList.getSelectedItem()).getId());
+        newPatternData.setDisplayPatternId((byte)((DisplayPatternOptionData)displayPatternList.getSelectedItem()).getId());
+        for (int i = 0; i < colorBars.length; i++) {
+            newPatternData.setColorValue(i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
+        }
+
+        for (int i = 0; i < parameters.length; i++) {
+            newPatternData.setParameterValue(i, (byte)parameters[i].getParameterValue());
+        }
+
+        connectedDevice.setPatternData(newPatternData);
         viewModel.updateConfiguration(connectedDevice);
     }
 
@@ -345,8 +376,6 @@ public class ConfigurationFragment extends ConfigurationView {
         public void onValueChanged(TableRowFragment tableRowFragment, int i, boolean b) {
             int color = Color.rgb(redFragment.getParameterValue(), greenFragment.getParameterValue(), blueFragment.getParameterValue());
             View colorPreview = view.findViewById(R.id.colorPreview);
-            //ColorDrawable drawable = new ColorDrawable();
-            //drawable.setColor(color);
             colorPreview.setBackgroundColor(color);
         }
     };
@@ -372,9 +401,9 @@ public class ConfigurationFragment extends ConfigurationView {
     private void onColorSelectionStart(View sourceColorBar) {
         ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
         int color = drawable.getColor();
-        redFragment.setParameterValue(Color.red(color));
-        greenFragment.setParameterValue(Color.green(color));
-        blueFragment.setParameterValue(Color.blue(color));
+        redFragment.setParameterValue((byte)Color.red(color));
+        greenFragment.setParameterValue((byte)Color.green(color));
+        blueFragment.setParameterValue((byte)Color.blue(color));
         colorBeingSelected = sourceColorBar;
         colorChooser.setVisibility(View.VISIBLE);
     }

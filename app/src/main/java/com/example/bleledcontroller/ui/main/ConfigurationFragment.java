@@ -52,6 +52,7 @@ public class ConfigurationFragment extends ConfigurationView {
     private TableRowFragment brightness;
     private TableRowFragment speed;
     private TableRowFragment[] parameters;
+    private View[] colorBars;
     private TableRowFragment redFragment;
     private TableRowFragment greenFragment;
     private TableRowFragment blueFragment;
@@ -129,8 +130,17 @@ public class ConfigurationFragment extends ConfigurationView {
         Button btnSelectColor = view.findViewById(R.id.selectColor);
         btnSelectColor.setOnClickListener(this::onCompleteColorChooser);
 
-        View color1 = view.findViewById(R.id.color1);
-        color1.setOnClickListener(this::onChangeColor);
+        colorBars = new View[]{
+            view.findViewById(R.id.color1),
+            view.findViewById(R.id.color2),
+            view.findViewById(R.id.color3),
+            view.findViewById(R.id.color4)
+        };
+
+        for (View colorBar:colorBars) {
+            colorBar.setOnClickListener(this::onChangeColor);
+            ((TableRow)colorBar.getParent()).setVisibility(View.GONE);
+        }
 
         parameters = new TableRowFragment[] {
                 TableRowFragment.newInstance("Parameter 1"),
@@ -199,6 +209,21 @@ public class ConfigurationFragment extends ConfigurationView {
         }
     }
 
+    private void resetColorList() {
+        for (View colorBar:colorBars) {
+            ((TableRow)colorBar.getParent()).setVisibility(View.GONE);
+        }
+
+        if (colorPatternList.getSelectedItemId() < 0) {
+            return;
+        }
+
+        ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
+        for (int i = 0; i < colorData.getNumberOfColors(); i++) {
+            ((TableRow)colorBars[i].getParent()).setVisibility(View.VISIBLE);
+        }
+    }
+
     private void resetParameterList() {
         clearParameterList();
 
@@ -233,6 +258,7 @@ public class ConfigurationFragment extends ConfigurationView {
     private AdapterView.OnItemSelectedListener onColorPatternSelected = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            resetColorList();
             resetParameterList();
         }
 

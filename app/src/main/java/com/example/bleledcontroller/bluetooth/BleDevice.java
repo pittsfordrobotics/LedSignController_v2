@@ -3,7 +3,13 @@ package com.example.bleledcontroller.bluetooth;
 import androidx.annotation.NonNull;
 
 public abstract class BleDevice {
-    public abstract String getName();
+    private String name;
+
+    protected BleDevice(String name) {
+        this.name = name;
+    }
+
+    public String getName() { return name; };
 
     @NonNull
     @Override

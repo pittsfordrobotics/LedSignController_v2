@@ -2,20 +2,16 @@ package com.example.bleledcontroller.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 
-public class AndroidBleDevice extends BleDevice {
+public class AndroidDevice extends ConnectedDevice {
     private BluetoothDevice device;
 
-    AndroidBleDevice(BluetoothDevice device)
+    AndroidDevice(BluetoothDevice device)
     {
+        super(device.getName());
         this.device = device;
     }
 
     public BluetoothDevice getDevice() {
         return device;
-    }
-
-    @Override
-    public String getName() {
-        return device.getName();
     }
 }

@@ -58,21 +58,24 @@ public class ViewModel {
 
     public void connect(BleDevice device)
     {
-        logMessage("Pretending to connect to device: " + device.getName());
+        logMessage("Connecting to device: " + device.getName());
         btProvider.connectToDevice(device, this::onDeviceConnected, this::onConnectionFailed);
     }
 
     public void reloadConfiguration(ConnectedDevice device) {
         // Notify UI elements that a reload is taking place?
+        logMessage("Reloading configuration for device.");
         btProvider.readDeviceSettings(device, this::onDeviceConnected);
     }
 
     public void updateConfiguration(ConnectedDevice device) {
         // Notify UI elements that an update is taking place?
+        logMessage("Updating settings for device.");
         btProvider.updateDevice(device, this::onDeviceConnected);
     }
 
     public void disconnect() {
+        logMessage("Disconnecting...");
         btProvider.disconnect();
         logMessage("Disconnected.");
         scanView.setDisconnectedState();

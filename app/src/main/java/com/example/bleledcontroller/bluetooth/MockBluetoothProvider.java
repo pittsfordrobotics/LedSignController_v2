@@ -101,14 +101,8 @@ public class MockBluetoothProvider implements BluetoothProvider {
         }
 
         String name = "Dummy LED sign " + deviceNumber;
+        discoveredDeviceCallback.accept(new BleDevice(name) {});
 
-        discoveredDeviceCallback.accept(new BleDevice() {
-            @Override
-            public String getName() {
-                return name;
-            }
-        });
-
-        handler.postDelayed(() -> doFakeDeviceDiscovery(discoveredDeviceCallback), 2000);
+        handler.postDelayed(() -> doFakeDeviceDiscovery(discoveredDeviceCallback), 1500);
     }
 }

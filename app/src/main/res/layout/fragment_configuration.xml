@@ -64,6 +64,27 @@
                     android:layout_height="wrap_content" />
             </TableRow>
 
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:layout_column="0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center"
+                    android:textAlignment="viewEnd"
+                    android:text="Color 1: " />
+
+                <View
+                    android:id="@+id/color1"
+                    android:layout_column="1"
+                    android:layout_width="50dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="5dp"
+                    android:background="#E616A1"
+                    />
+
+            </TableRow>
         </TableLayout>
 
         <LinearLayout
@@ -95,5 +116,65 @@
 
         </LinearLayout>
 
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <LinearLayout
+            android:id="@+id/colorChooser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:id="@+id/colorParameterTable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="1">
+
+            </TableLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center"
+                    android:text="Preview:"/>
+
+                <View
+                    android:id="@+id/colorPreview"
+                    android:layout_width="50dp"
+                    android:layout_height="25dp"
+                    android:layout_margin="5dp"
+                    android:background="#FFFFFF"
+                    android:layout_gravity="center"
+                    />
+
+                <Button
+                    android:id="@+id/cancelColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="Cancel" />
+
+                <Button
+                    android:id="@+id/selectColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="Select" />
+
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

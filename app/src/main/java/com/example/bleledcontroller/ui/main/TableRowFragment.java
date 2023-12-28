@@ -19,7 +19,11 @@ import com.example.bleledcontroller.R;
  * create an instance of this fragment.
  */
 public class TableRowFragment extends Fragment {
+    public interface OnValueChangeListener {
+        public void onValueChanged(TableRowFragment tableRowFragment, int i, boolean b);
+    }
 
+    private OnValueChangeListener onValueChangeListener = null;
     private static final String ARG_PARAMNAME = "paramName";
     private static boolean showValue = false;
     private boolean isInitialized = false;
@@ -65,11 +69,15 @@ public class TableRowFragment extends Fragment {
         txtParameterName = view.findViewById(R.id.txtParameterName);
         sbParameterValue = view.findViewById(R.id.seekBarParameterValue);
 
-        sbParameterValue.setOnSeekBarChangeListener(seekBarChangeListener);
+        sbParameterValue.setOnSeekBarChangeListener(createSeekBarChangeListener());
         txtParameterValue = view.findViewById(R.id.txtValue);
         isInitialized = true;
         refresh();
         return view;
+    }
+
+    public void setOnValueChangeListener(OnValueChangeListener onValueChangeListener) {
+        this.onValueChangeListener = onValueChangeListener;
     }
 
     public void setParameterName(String parameterName) {
@@ -79,6 +87,10 @@ public class TableRowFragment extends Fragment {
 
     public int getParameterValue() {
         return sbParameterValue.getProgress();
+    }
+
+    public void setParameterValue(int value) {
+        sbParameterValue.setProgress(value);
     }
 
     public void setEnabled(boolean enabled) {
@@ -97,7 +109,9 @@ public class TableRowFragment extends Fragment {
             return;
         }
 
-        if (!TableRowFragment.showValue) {
+        if (TableRowFragment.showValue) {
+            txtParameterValue.setVisibility(View.VISIBLE);
+        } else {
             txtParameterValue.setVisibility(View.GONE);
         }
 
@@ -110,18 +124,27 @@ public class TableRowFragment extends Fragment {
         rowContainer.setVisibility(visibility);
     }
 
-    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-            txtParameterValue.setText(String.valueOf(i));
-        }
+    private TableRowFragment getOwningRowFragment() {
+        return this;
+    }
 
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-        }
+    private SeekBar.OnSeekBarChangeListener createSeekBarChangeListener() {
+        return new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                txtParameterValue.setText(String.valueOf(i));
+                if (onValueChangeListener != null) {
+                    onValueChangeListener.onValueChanged(getOwningRowFragment(), i, b);
+                }
+            }
 
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-        }
-    };
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        };
+    }
 }

@@ -1,5 +1,7 @@
 package com.example.bleledcontroller.ui.main;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -27,6 +30,7 @@ import com.example.bleledcontroller.views.ConfigurationView;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Array;
 import java.util.List;
 
 /**
@@ -36,6 +40,7 @@ import java.util.List;
  */
 public class ConfigurationFragment extends ConfigurationView {
 
+    private View view;
     private ConnectedDevice connectedDevice = null;
     private ViewModel viewModel = null;
     private TextView statusText;
@@ -43,11 +48,13 @@ public class ConfigurationFragment extends ConfigurationView {
     private Button btnReload;
     private Spinner displayPatternList;
     private Spinner colorPatternList;
+    private LinearLayout colorChooser;
     private TableRowFragment brightness;
     private TableRowFragment speed;
     private TableRowFragment[] parameters;
-    private ArrayAdapter<ColorPatternOptionData> colorPatternListAdapter;
-    private ArrayAdapter<DisplayPatternOptionData> displayPatternListAdapter;
+    private TableRowFragment redFragment;
+    private TableRowFragment greenFragment;
+    private TableRowFragment blueFragment;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -75,8 +82,8 @@ public class ConfigurationFragment extends ConfigurationView {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_configuration, container, false);
-        initialize(view);
+        view = inflater.inflate(R.layout.fragment_configuration, container, false);
+        initialize();
         refreshDisplay();
         return view;
     }
@@ -93,23 +100,37 @@ public class ConfigurationFragment extends ConfigurationView {
         refreshDisplay();
     }
 
-    private void initialize(View view) {
+    private void initialize() {
         TableRowFragment.setValueDisplay(true);
         statusText = view.findViewById(R.id.configStatus);
         btnReload = view.findViewById(R.id.btnReload);
         btnReload.setOnClickListener(this::onReload);
         btnUpdate = view.findViewById(R.id.btnUpdate);
         btnUpdate.setOnClickListener(this::onUpdate);
+        colorChooser = view.findViewById(R.id.colorChooser);
         colorPatternList = view.findViewById(R.id.colorPattern);
-        colorPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<ColorPatternOptionData> colorPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
         colorPatternList.setAdapter(colorPatternListAdapter);
         colorPatternList.setOnItemSelectedListener(this.onColorPatternSelected);
         displayPatternList = view.findViewById(R.id.displayPattern);
-        displayPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<DisplayPatternOptionData> displayPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
         displayPatternList.setAdapter(displayPatternListAdapter);
         displayPatternList.setOnItemSelectedListener(this.onDisplayPatternSelected);
         brightness = TableRowFragment.newInstance("Brightness");
         speed = TableRowFragment.newInstance("Speed");
+        redFragment = TableRowFragment.newInstance("Red");
+        redFragment.setOnValueChangeListener(onColorChangeListener);
+        greenFragment = TableRowFragment.newInstance("Green");
+        greenFragment.setOnValueChangeListener(onColorChangeListener);
+        blueFragment = TableRowFragment.newInstance("Blue");
+        blueFragment.setOnValueChangeListener(onColorChangeListener);
+        Button btnCancelColor = view.findViewById(R.id.cancelColor);
+        btnCancelColor.setOnClickListener(this::onCancelColorChooser);
+        Button btnSelectColor = view.findViewById(R.id.selectColor);
+        btnSelectColor.setOnClickListener(this::onCompleteColorChooser);
+
+        View color1 = view.findViewById(R.id.color1);
+        color1.setOnClickListener(this::onChangeColor);
 
         parameters = new TableRowFragment[] {
                 TableRowFragment.newInstance("Parameter 1"),
@@ -128,6 +149,9 @@ public class ConfigurationFragment extends ConfigurationView {
         for (TableRowFragment parameter:parameters) {
             ft.add(R.id.configTable, parameter);
         }
+        ft.add(R.id.colorParameterTable, redFragment);
+        ft.add(R.id.colorParameterTable, greenFragment);
+        ft.add(R.id.colorParameterTable, blueFragment);
         ft.commit();
     }
 
@@ -136,6 +160,8 @@ public class ConfigurationFragment extends ConfigurationView {
             // We haven't been initialized yet.
             return;
         }
+
+        view.findViewById(R.id.colorChooser).setVisibility(View.GONE);
 
         if (connectedDevice == null) {
             statusText.setText("Not connected.");
@@ -157,11 +183,13 @@ public class ConfigurationFragment extends ConfigurationView {
 
             // Populate dropdowns
             List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
-            colorPatternListAdapter.clear();
-            colorPatternListAdapter.addAll(colorOptions);
+            ArrayAdapter<ColorPatternOptionData> colorPatternAdapter = (ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter();
+            colorPatternAdapter.clear();
+            colorPatternAdapter.addAll(colorOptions);
             List<DisplayPatternOptionData> displayOptions = connectedDevice.getPatternOptionData().getDisplayPatternOptions();
-            displayPatternListAdapter.clear();
-            displayPatternListAdapter.addAll(displayOptions);
+            ArrayAdapter<DisplayPatternOptionData> displayPatternAdapter = (ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter();
+            displayPatternAdapter.clear();
+            displayPatternAdapter.addAll(displayOptions);
         }
     }
 
@@ -223,4 +251,42 @@ public class ConfigurationFragment extends ConfigurationView {
         public void onNothingSelected(AdapterView<?> adapterView) {
         }
     };
+
+    private TableRowFragment.OnValueChangeListener onColorChangeListener = new TableRowFragment.OnValueChangeListener() {
+        @Override
+        public void onValueChanged(TableRowFragment tableRowFragment, int i, boolean b) {
+            int color = Color.rgb(redFragment.getParameterValue(), greenFragment.getParameterValue(), blueFragment.getParameterValue());
+            View colorPreview = view.findViewById(R.id.colorPreview);
+            ColorDrawable drawable = new ColorDrawable();
+            drawable.setColor(color);
+            colorPreview.setBackground(drawable);
+        }
+    };
+
+    private View colorBeingSelected = null;
+
+    private void onCompleteColorChooser(View v) {
+         if (colorBeingSelected != null) {
+             View colorPreview = view.findViewById(R.id.colorPreview);
+             colorBeingSelected.setBackground(colorPreview.getBackground());
+         }
+
+         colorBeingSelected = null;
+         colorChooser.setVisibility(View.GONE);
+    }
+
+    private void onCancelColorChooser(View v) {
+        colorBeingSelected = null;
+        colorChooser.setVisibility(View.GONE);
+    }
+
+    private void onChangeColor(View colorBar) {
+        ColorDrawable drawable = (ColorDrawable) colorBar.getBackground();
+        int color = drawable.getColor();
+        redFragment.setParameterValue(Color.red(color));
+        greenFragment.setParameterValue(Color.green(color));
+        blueFragment.setParameterValue(Color.blue(color));
+        colorBeingSelected = colorBar;
+        colorChooser.setVisibility(View.VISIBLE);
+    }
 }

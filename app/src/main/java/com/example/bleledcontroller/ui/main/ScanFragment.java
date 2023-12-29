@@ -35,6 +35,7 @@ public class ScanFragment extends ScanView {
     private ArrayAdapter<BleDevice> discoveredDeviceListAdapter;
     private ListView deviceList = null;
     private boolean bluetoothEnabled = false;
+    private ConnectedDevice currentDevice = null;
 
     public ScanFragment() {
         // Required empty public constructor
@@ -75,6 +76,7 @@ public class ScanFragment extends ScanView {
 
     @Override
     public void setConnectedDevice(ConnectedDevice device) {
+        currentDevice = device;
         getActivity().runOnUiThread(() -> {
             discoveredDeviceListAdapter.clear();
             scanButton.setVisibility(View.GONE);
@@ -86,6 +88,7 @@ public class ScanFragment extends ScanView {
 
     @Override
     public void setConnectionFailed() {
+        currentDevice = null;
         connectionStatus.setText("Connection failed!");
         scanButton.setEnabled(true);
         connectButton.setEnabled(true);
@@ -94,6 +97,7 @@ public class ScanFragment extends ScanView {
 
     @Override
     public void setDisconnectedState() {
+        currentDevice = null;
         resetToInitialState();
     }
 
@@ -181,8 +185,10 @@ public class ScanFragment extends ScanView {
     }
 
     private void onDisconnect(View v) {
-        connectionStatus.setText("Disconnecting from device...");
-        disconnectButton.setEnabled(false);
-        viewModel.disconnect();
+        if (currentDevice != null) {
+            connectionStatus.setText("Disconnecting from device...");
+            disconnectButton.setEnabled(false);
+            viewModel.disconnect(currentDevice);
+        }
     }
 }

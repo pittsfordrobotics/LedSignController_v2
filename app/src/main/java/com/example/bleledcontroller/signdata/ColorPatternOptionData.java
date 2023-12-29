@@ -1,5 +1,7 @@
 package com.example.bleledcontroller.signdata;
 
+import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -10,6 +12,21 @@ public class ColorPatternOptionData {
     private int id;
     private int numberOfColors;
     private ArrayList<String> parameterNames = new ArrayList<>();
+
+    public static ColorPatternOptionData fromString(String colorPatternString) {
+        String[] parts = colorPatternString.split(",");
+        if (parts.length < 3) {
+            // Invalid length
+            return null;
+        }
+
+        ColorPatternOptionData optionData = new ColorPatternOptionData(parts[0], Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+        for (int i = 3; i < parts.length; i++) {
+            optionData.addParameterName(parts[i]);
+        }
+
+        return optionData;
+    }
 
     public ColorPatternOptionData(String name, int id, int numberOfColors) {
         this.name = name;

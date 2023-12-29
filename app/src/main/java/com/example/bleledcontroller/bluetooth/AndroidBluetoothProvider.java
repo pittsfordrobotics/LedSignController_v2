@@ -23,7 +23,9 @@ import android.os.ParcelUuid;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -33,6 +35,8 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
     private Consumer<String> logger;
     private HashSet<String> discoveredAddresses = new HashSet<>();
     private ScanCallback currentScanCallback;
+    private Queue<BleOperation> operationQueue = new LinkedList<>();
+    private BleOperation pendingOperation = null;
 
     public AndroidBluetoothProvider(Context context) {
         this.context = context;
@@ -92,8 +96,13 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
     }
 
     @Override
-    public void disconnect() {
-
+    public void disconnect(ConnectedDevice device) {
+        if (!(device instanceof AndroidBleDevice)) {
+            logMessage("Incorrect BLE device type was specified.");
+            return;
+        }
+        AndroidBleDevice androidBleDevice = (AndroidBleDevice) device;
+        androidBleDevice.disconnect();
     }
 
     @Override
@@ -106,6 +115,59 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
 
     }
 
+    //
+    // Operation queuing methods - add / complete / doNext.
+    // BLE is notorious for dropping concurrent operations, so
+    // this queuing mechanism allows us to "stack up" operations.
+    //
+    public void queueOperation(BleOperation operation) {
+        operationQueue.add(operation);
+        if (pendingOperation == null) {
+            // No operations are yet processing. Kick off the next one in the queue.
+            doNextOperation();
+        }
+    }
+
+    // Complete the pending operation and start the next one.
+    private void completeOperation() {
+        pendingOperation = null;
+        doNextOperation();
+    }
+
+    private void doNextOperation() {
+        if (pendingOperation != null) {
+            // Already working on an operation.
+            return;
+        }
+
+        if (operationQueue.isEmpty()) {
+            return;
+        }
+
+        pendingOperation = operationQueue.remove();
+        if (pendingOperation instanceof BleNullOperation) {
+            // A do-nothing operation just to provide a callback method
+            BleNullOperation op = (BleNullOperation) pendingOperation;
+            op.getCallback().run();
+            completeOperation();
+            return;
+        }
+        if (pendingOperation instanceof BleReadCharacteristicOperation) {
+            BleReadCharacteristicOperation op = (BleReadCharacteristicOperation) pendingOperation;
+            op.getBluetoothGatt().readCharacteristic(op.getCharacteristic());
+            return;
+        }
+        if (pendingOperation instanceof BleWriteCharacteristicOperation) {
+            BleWriteCharacteristicOperation op = (BleWriteCharacteristicOperation) pendingOperation;
+            BluetoothGattCharacteristic characteristic = op.getCharacteristic();
+            characteristic.setValue(op.getTargetValue());
+            op.getBluetoothGatt().writeCharacteristic(characteristic);
+            return;
+        }
+
+        logMessage("Unknown operation type encountered. Skipping.");
+    }
+
     private void logMessage(String message) {
         if (logger != null) {
             logger.accept(message);
@@ -113,6 +175,8 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
     }
 
     private ScanCallback createScanCallback(Consumer<BleDevice> discoveredDeviceCallback) {
+        AndroidBluetoothProvider btProvider = this;
+
         return new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
@@ -125,7 +189,7 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
                 discoveredAddresses.add(device.getAddress());
 
                 if (discoveredDeviceCallback != null) {
-                    discoveredDeviceCallback.accept(new AndroidBleDevice(device));
+                    discoveredDeviceCallback.accept(new AndroidBleDevice(device, btProvider, (String s) -> logMessage(s)));
                 }
             }
         };
@@ -137,20 +201,21 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
 
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                logger.accept("BLE connect state changed. Status: " + status + ", state: " + newState);
+                logMessage("BLE connect state changed. Status: " + status + ", state: " + newState);
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
-                        logger.accept("Connected to device - discovering services");
+                        logMessage("Connected to device - discovering services");
                         // Start discovering services -- this will call back to 'onServicesDiscovered'.
+                        bleDevice.setBluetoothGatt(gatt);
                         gatt.discoverServices();
                     } else {
-                        logger.accept("Unexpected GATT state encountered: " + newState);
+                        logMessage("Unexpected GATT state encountered: " + newState);
                         gatt.disconnect();
                         gatt.close();
                         onConnectionFailedCallback.accept(bleDevice);
                     }
                 } else {
-                    logger.accept("Unexpected GATT status encountered. Status: " + status + ", state: " + newState);
+                    logMessage("Unexpected GATT status encountered. Status: " + status + ", state: " + newState);
                     gatt.disconnect();
                     gatt.close();
                     onConnectionFailedCallback.accept(bleDevice);
@@ -165,83 +230,55 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
                 targetServices.add(BleConstants.PrimaryLedServiceUuid);
                 targetServices.add(BleConstants.SecondaryLedServiceUuid);
 
-                logger.accept("Looking for LED service...");
-                logger.accept("Found " + services.size() + " services:");
+                logMessage("Looking for LED service...");
+                logMessage("Found " + services.size() + " services:");
 
                 for (BluetoothGattService service : services) {
-                    logger.accept("Found service: " + service.getUuid());
+                    logMessage("Found service: " + service.getUuid());
                     if (targetServices.contains(service.getUuid())) {
                         ledService = service;
                     }
                 }
 
                 if (ledService == null) {
-                    logger.accept("LED service not found!");
+                    logMessage("LED service not found!");
                     onConnectionFailedCallback.accept(bleDevice);
                     return;
                 }
 
-                logger.accept("Found LED service.");
-                bindCharacteristics(ledService);
-                if (!bleDevice.areAllCharacteristicsValid()) {
-                    logger.accept("At least one characteristic was not found in the service.");
+                logMessage("Found LED service.");
+                if (!bleDevice.bindCharacteristics(ledService)) {
+                    logMessage("At least one characteristic was not found in the service.");
                     onConnectionFailedCallback.accept(bleDevice);
                     return;
                 }
 
-                logger.accept("Services bound successfully.");
+                logMessage("Services bound successfully.");
 
-//                InitializeCharacteristicOperations();
-//
-//                // We can only read one characteristic at a time, so add all the initial
-//                // characteristic read operations to the queue.
-//                addOperation(readOperations.get(BrightnessCharacteristicId));
-//                addOperation(readOperations.get(StyleCharacteristicId));
-//                addOperation(readOperations.get(NamesCharacteristicId));
-//                addOperation(readOperations.get(SpeedCharacteristicId));
-//                addOperation(readOperations.get(StepCharacteristicId));
-//                addOperation(readOperations.get(PatternCharacteristicId));
-//                addOperation(readOperations.get(PatternNamesCharacteristicId));
-//                addOperation(readOperations.get(BatteryVoltageCharacteristicId));
-                onConnectedCallback.accept(bleDevice);
+                // Perform the initial read of the characteristics, call the "connected" callback when done.
+                bleDevice.refreshCharacteristics(onConnectedCallback);
             }
 
             @Override
             public void onCharacteristicRead(BluetoothGatt gatt,
                                              BluetoothGattCharacteristic characteristic,
                                              int status) {
-//
-//                if (!(pendingOperation instanceof BleReadCharacteristicOperation)) {
-//                    // Something unexpected happened!
-//                    callback.acceptStatus("ERROR: In the 'read' callback, but the pending operation is not a read operation.");
-//                    completeOperation();
-//                    return;
-//                }
-//
-//                BleReadCharacteristicOperation op = (BleReadCharacteristicOperation) pendingOperation;
-//                op.getCallback().ProcessCharacteristic(characteristic);
-//                completeOperation();
+
+                if (!(pendingOperation instanceof BleReadCharacteristicOperation)) {
+                    // Something unexpected happened!
+                    logMessage("ERROR: In the 'read' callback, but the pending operation is not a read operation.");
+                    completeOperation();
+                    return;
+                }
+
+                BleReadCharacteristicOperation op = (BleReadCharacteristicOperation) pendingOperation;
+                op.getCallback().accept(characteristic);
+                completeOperation();
             }
 
             @Override
             public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-//                completeOperation();
-            }
-
-            private void bindCharacteristics(BluetoothGattService service) {
-                bleDevice.setBrightnessCharacteristic(findCharacteristic(service, BleConstants.BrightnessCharacteristicId, "Brightness"));
-                bleDevice.setSpeedCharacteristic(findCharacteristic(service, BleConstants.SpeedCharacteristicId, "Speed"));
-                bleDevice.setColorPatternDataCharacteristic(findCharacteristic(service, BleConstants.ColorPatternListCharacteristicId, "Color Pattern List"));
-                bleDevice.setDisplayPatternDataCharacteristic(findCharacteristic(service, BleConstants.DisplayPatternListCharacteristicId, "Color Pattern List"));
-                bleDevice.setPatternDataCharacteristic(findCharacteristic(service, BleConstants.PatternDataCharacteristicId, "Pattern Data"));
-            }
-
-            private BluetoothGattCharacteristic findCharacteristic(BluetoothGattService service, UUID id, String name) {
-                BluetoothGattCharacteristic gattChar = service.getCharacteristic(id);
-                if (gattChar == null) {
-                    logger.accept("Characteristic '" + name + "' not found!");
-                }
-                return gattChar;
+                completeOperation();
             }
         };
     }

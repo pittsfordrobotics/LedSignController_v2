@@ -79,8 +79,7 @@ public class MockBluetoothProvider implements BluetoothProvider {
     }
 
     @Override
-    public void disconnect() {
-
+    public void disconnect(ConnectedDevice device) {
     }
 
     @Override

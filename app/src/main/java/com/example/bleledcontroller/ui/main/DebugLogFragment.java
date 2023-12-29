@@ -64,7 +64,9 @@ public class DebugLogFragment extends DebugView {
             // We haven't initialized the UI yet, so just add it to the buffer.
             buffer += text + '\n';
         } else {
-            debugText.append(text + '\n');
+            getActivity().runOnUiThread(() -> {
+                debugText.append(text + '\n');
+            });
         }
     }
 }

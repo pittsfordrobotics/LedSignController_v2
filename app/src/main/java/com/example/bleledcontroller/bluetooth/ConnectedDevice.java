@@ -13,6 +13,10 @@ public abstract class ConnectedDevice extends BleDevice {
         super(name);
     }
 
+    protected void setPatternOptionData(PatternOptionData patternOptionData) {
+        this.patternOptionData = patternOptionData;
+    }
+
     // Gets the ColorPattern and DisplayPattern information so we can
     // initialize the "configure" pane in the UI.
     public PatternOptionData getPatternOptionData() { return patternOptionData; }

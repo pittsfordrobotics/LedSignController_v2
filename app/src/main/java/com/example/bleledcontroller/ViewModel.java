@@ -117,11 +117,12 @@ public class ViewModel {
     private void onDeviceConnected(ConnectedDevice device) {
         logMessage("Connected to device: " + device.getName());
         scanView.setConnectedDevice(device);
-        configurationView.setConnectedDevice(device);
+        //configurationView.setConnectedDevice(device);
     }
 
     private void onConnectionFailed(BleDevice device) {
         logMessage("Failed to connect to device: " + device.getName());
         scanView.setConnectionFailed();
+        configurationView.setDisconnectedState();
     }
 }

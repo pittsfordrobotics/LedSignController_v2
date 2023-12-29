@@ -75,11 +75,13 @@ public class ScanFragment extends ScanView {
 
     @Override
     public void setConnectedDevice(ConnectedDevice device) {
-        discoveredDeviceListAdapter.clear();
-        scanButton.setVisibility(View.GONE);
-        connectButton.setVisibility(View.GONE);
-        disconnectButton.setVisibility(View.VISIBLE);
-        connectionStatus.setText("Connected to: " + device.getName());
+        getActivity().runOnUiThread(() -> {
+            discoveredDeviceListAdapter.clear();
+            scanButton.setVisibility(View.GONE);
+            connectButton.setVisibility(View.GONE);
+            disconnectButton.setVisibility(View.VISIBLE);
+            connectionStatus.setText("Connected to: " + device.getName());
+        });
     }
 
     @Override

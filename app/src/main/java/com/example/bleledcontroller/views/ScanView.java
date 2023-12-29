@@ -11,4 +11,5 @@ public abstract class ScanView extends Fragment {
     public abstract void setConnectedDevice(ConnectedDevice device);
     public abstract void setDisconnectedState();
     public abstract void setConnectionFailed();
+    public abstract void setBluetoothEnabled();
 }

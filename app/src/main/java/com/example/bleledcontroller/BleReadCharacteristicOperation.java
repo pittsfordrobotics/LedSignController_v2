@@ -3,18 +3,20 @@ package com.example.bleledcontroller;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import java.util.function.Consumer;
+
 public class BleReadCharacteristicOperation extends BleOperation {
-    private BleReadOperationCallback callback;
+    private Consumer<BluetoothGattCharacteristic> callback;
 
     public BleReadCharacteristicOperation(
             BluetoothGatt bluetoothGatt,
             BluetoothGattCharacteristic characteristic,
-            BleReadOperationCallback callback) {
+            Consumer<BluetoothGattCharacteristic> callback) {
         super(bluetoothGatt, characteristic);
         this.callback = callback;
     }
 
-    public BleReadOperationCallback getCallback() {
+    public Consumer<BluetoothGattCharacteristic> getCallback() {
         return callback;
     }
 }

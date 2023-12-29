@@ -410,7 +410,7 @@ public class NanoConnector {
             }
 
             BleReadCharacteristicOperation op = (BleReadCharacteristicOperation)pendingOperation;
-            op.getCallback().ProcessCharacteristic(characteristic);
+            op.getCallback().accept(characteristic);
             completeOperation();
         }
 

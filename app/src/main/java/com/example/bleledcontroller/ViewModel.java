@@ -28,14 +28,17 @@ public class ViewModel {
 
     private BluetoothProvider btProvider;
 
-    public ViewModel(BluetoothProvider bluetoothProvider) {
+    public ViewModel() {
         init(DebugLogFragment.newInstance(this), ScanFragment.newInstance(this), ConfigurationFragment.newInstance(this));
-        this.btProvider = bluetoothProvider;
     }
 
-    public ViewModel(BluetoothProvider bluetoothProvider, DebugView debugView, ScanView scanView, ConfigurationView configurationView) {
+    public ViewModel(DebugView debugView, ScanView scanView, ConfigurationView configurationView) {
         init(debugView, scanView, configurationView);
-        this.btProvider = bluetoothProvider;
+    }
+
+    public void setBluetoothProvider(BluetoothProvider btProvider) {
+        this.btProvider = btProvider;
+        scanView.setBluetoothEnabled();
     }
 
     private void init(DebugView debugView, ScanView scanView, ConfigurationView configurationView) {

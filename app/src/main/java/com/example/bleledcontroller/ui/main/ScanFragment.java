@@ -34,6 +34,7 @@ public class ScanFragment extends ScanView {
     private Button disconnectButton = null;
     private ArrayAdapter<BleDevice> discoveredDeviceListAdapter;
     private ListView deviceList = null;
+    private boolean bluetoothEnabled = false;
 
     public ScanFragment() {
         // Required empty public constructor
@@ -94,8 +95,17 @@ public class ScanFragment extends ScanView {
         resetToInitialState();
     }
 
+    @Override
+    public void setBluetoothEnabled() {
+        bluetoothEnabled = true;
+        if (scanButton != null) {
+            scanButton.setEnabled(true);
+        }
+    }
+
     public void resetToInitialState() {
         discoveredDeviceListAdapter.clear();
+        scanButton.setEnabled(bluetoothEnabled);
         scanButton.setVisibility(View.VISIBLE);
         stopScanButton.setVisibility(View.GONE);
         connectButton.setVisibility(View.GONE);

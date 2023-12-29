@@ -1,4 +1,4 @@
-package com.example.bleledcontroller;
+package com.example.bleledcontroller.bluetooth;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;

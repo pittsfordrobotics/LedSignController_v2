@@ -150,6 +150,7 @@ public class ScanFragment extends ScanView {
         disconnectButton.setVisibility(View.GONE);
         connectionStatus.setText("Scanning...");
         discoveredDevicesText.setVisibility(View.VISIBLE);
+        deviceList.setEnabled(true);
         viewModel.beginScan();
     }
 

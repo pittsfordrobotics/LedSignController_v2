@@ -107,7 +107,12 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
 
     @Override
     public void readDeviceSettings(ConnectedDevice device, Consumer<ConnectedDevice> deviceReadCallback) {
-
+        if (!(device instanceof AndroidBleDevice)) {
+            logMessage("Incorrect BLE device type was specified.");
+            return;
+        }
+        AndroidBleDevice androidBleDevice = (AndroidBleDevice) device;
+        androidBleDevice.refreshCharacteristics(deviceReadCallback);
     }
 
     @Override
@@ -252,8 +257,6 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
                     onConnectionFailedCallback.accept(bleDevice);
                     return;
                 }
-
-                logMessage("Services bound successfully.");
 
                 // Perform the initial read of the characteristics, call the "connected" callback when done.
                 bleDevice.refreshCharacteristics(onConnectedCallback);

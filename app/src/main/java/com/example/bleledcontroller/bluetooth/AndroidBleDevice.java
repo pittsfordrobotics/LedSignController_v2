@@ -73,12 +73,16 @@ public class AndroidBleDevice extends ConnectedDevice {
     public void refreshCharacteristics(Consumer<ConnectedDevice> refreshCompletedCallback) {
         // Enqueue all the "read" operations,
         // ending with a NullOperation to invoke the final callback.
+        logger.accept("Refreshing all characteristics.");
         btProvider.queueOperation(readOperations.get(BleConstants.BrightnessCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.SpeedCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.ColorPatternListCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.DisplayPatternListCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.PatternDataCharacteristicId));
-        btProvider.queueOperation(new BleNullOperation(() -> refreshCompletedCallback.accept(this)));
+        btProvider.queueOperation(new BleNullOperation(() -> {
+            logger.accept("All characteristics refreshed.");
+            refreshCompletedCallback.accept(this);
+        }));
     }
 
     private BluetoothGattCharacteristic findCharacteristic(BluetoothGattService service, UUID id, String name) {
@@ -128,15 +132,6 @@ public class AndroidBleDevice extends ConnectedDevice {
                         bluetoothGatt,
                         patternDataCharacteristic,
                         (BluetoothGattCharacteristic c) -> {
-                            String s = "";
-                            byte[] bytes = c.getValue();
-                            for (byte b:bytes) {
-                                if (s.length() > 0) {
-                                    s += "-";
-                                }
-                                s += Byte.toUnsignedInt(b);
-                            }
-                            logger.accept("Binary data: " + s);
                             setPatternData(PatternData.fromBinaryData(c.getValue()));
                         }
                 ));

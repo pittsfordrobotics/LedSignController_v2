@@ -172,14 +172,16 @@ public class ConfigurationFragment extends ConfigurationView {
             return;
         }
 
-        if (connectedDevice == null) {
-            setDisplayForDisconnectedDevice();
-        } else {
-            setDisplayForConnectedDevice();
-        }
+        getActivity().runOnUiThread(() -> {
+            if (connectedDevice == null) {
+                setDisplayForDisconnectedDevice();
+            } else {
+                setDisplayForConnectedDevice();
+            }
 
-        // Make sure the color chooser panel isn't showing, regardless of connection state.
-        view.findViewById(R.id.colorChooser).setVisibility(View.GONE);
+            // Make sure the color chooser panel isn't showing, regardless of connection state.
+            view.findViewById(R.id.colorChooser).setVisibility(View.GONE);
+        });
     }
 
     private void setDisplayForDisconnectedDevice() {
@@ -187,9 +189,9 @@ public class ConfigurationFragment extends ConfigurationView {
         btnReload.setEnabled(false);
         btnUpdate.setEnabled(false);
         displayPatternList.setEnabled(false);
-        ((ArrayAdapter<DisplayPatternOptionData>)displayPatternList.getAdapter()).clear();
+        ((ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter()).clear();
         colorPatternList.setEnabled(false);
-        ((ArrayAdapter<ColorPatternOptionData>)colorPatternList.getAdapter()).clear();
+        ((ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter()).clear();
         brightness.setEnabled(false);
         speed.setEnabled(false);
         clearParameterList();
@@ -322,8 +324,7 @@ public class ConfigurationFragment extends ConfigurationView {
 
     private void onReload(View v) {
         statusText.setText("Refreshing device...");
-        // Need to put in some UI updates...
-        // ie, gray out some fields while we're doing the reload.
+        disableAll();
         viewModel.reloadConfiguration(connectedDevice);
     }
 

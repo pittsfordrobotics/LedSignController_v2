@@ -117,7 +117,12 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
 
     @Override
     public void updateDevice(ConnectedDevice device, Consumer<ConnectedDevice> deviceUpdatedCallback) {
-
+        if (!(device instanceof AndroidBleDevice)) {
+            logMessage("Incorrect BLE device type was specified.");
+            return;
+        }
+        AndroidBleDevice androidBleDevice = (AndroidBleDevice) device;
+        androidBleDevice.updateCharacteristics(deviceUpdatedCallback);
     }
 
     //
@@ -166,6 +171,7 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
             BleWriteCharacteristicOperation op = (BleWriteCharacteristicOperation) pendingOperation;
             BluetoothGattCharacteristic characteristic = op.getCharacteristic();
             characteristic.setValue(op.getTargetValue());
+
             op.getBluetoothGatt().writeCharacteristic(characteristic);
             return;
         }

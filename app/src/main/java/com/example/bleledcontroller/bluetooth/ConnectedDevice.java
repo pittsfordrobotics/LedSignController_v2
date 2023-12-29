@@ -4,7 +4,7 @@ import com.example.bleledcontroller.signdata.PatternData;
 import com.example.bleledcontroller.signdata.PatternOptionData;
 
 public abstract class ConnectedDevice extends BleDevice {
-    protected PatternOptionData patternOptionData;
+    private PatternOptionData patternOptionData;
     private byte brightness;
     private byte speed;
     private PatternData patternData;

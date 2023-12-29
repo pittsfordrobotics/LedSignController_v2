@@ -11,4 +11,5 @@ public class BleConstants {
     public static final UUID PatternDataCharacteristicId = UUID.fromString("20450d4f-d882-4fee-8be0-bbf82707dc79");
     public static final UUID ColorPatternListCharacteristicId = UUID.fromString("504850ed-f4e7-497a-a1e3-cc70afa56901");
     public static final UUID DisplayPatternListCharacteristicId = UUID.fromString("c999ee9b-294e-4889-8cba-1eb2f515b054");
+    public static final UUID SyncDataCharacteristidId = UUID.fromString("2541ad55-ea7e-4afd-9810-06731a76d8dc");
 }

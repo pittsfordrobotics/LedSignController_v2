@@ -8,6 +8,6 @@ public class MockDevice extends ConnectedDevice {
     }
 
     public void setPatternOptionData(PatternOptionData data) {
-        patternOptionData = data;
+        super.setPatternOptionData(data);
     }
 }

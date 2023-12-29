@@ -1,6 +1,8 @@
 package com.example.bleledcontroller;
 
 import android.Manifest;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,7 +22,6 @@ import androidx.viewpager2.widget.ViewPager2;
 public class MainActivity extends AppCompatActivity {
     private static final int RUNTIME_PERMISSION_REQUEST_CODE = 1;
 
-    private boolean useMockProvider = true;
     private ViewModel viewModel = new ViewModel();
 
     @Override
@@ -42,7 +43,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private BluetoothProvider CreateBluetoothProvider() {
-        if (useMockProvider) {
+        boolean isBluetoothAvailable = ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter() != null;
+
+        if (!isBluetoothAvailable) {
+            viewModel.logMessage("No BT adapter detected. Using a MOCK instead.");
             return new MockBluetoothProvider();
         } else {
             // Request permissions if needed

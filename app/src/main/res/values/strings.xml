@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">3181 LED controller</string>
-    <string name="title_activity_main">MainActivity</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">3181 LED controller v2</string>
+    <string name="title_activity_main">3181 LED controller v2</string>
 </resources>

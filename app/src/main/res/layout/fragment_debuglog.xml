@@ -5,17 +5,32 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.DebugLogFragment">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/debugText"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/debugText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:text="" />
+
+        </ScrollView>
+
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:layout_margin="10dp"
-            android:text="" />
+            android:layout_gravity="right"
+            android:text="Clear"/>
 
-    </ScrollView>
-
+    </LinearLayout>
 </FrameLayout>

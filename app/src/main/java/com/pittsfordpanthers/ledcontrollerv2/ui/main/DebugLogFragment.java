@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.pittsfordpanthers.ledcontrollerv2.R;
@@ -24,6 +25,7 @@ public class DebugLogFragment extends DebugView {
     private String buffer = "";
 
     private TextView debugText;
+    private Button btnClear;
 
     public DebugLogFragment() {
         // Required empty public constructor
@@ -53,7 +55,8 @@ public class DebugLogFragment extends DebugView {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_debuglog, container, false);
         debugText = view.findViewById(R.id.debugText);
-
+        btnClear = view.findViewById(R.id.btnClear);
+        btnClear.setOnClickListener(this::onClear);
         // Add any buffered messages.
         debugText.setText(buffer);
         return view;
@@ -66,6 +69,16 @@ public class DebugLogFragment extends DebugView {
         } else {
             getActivity().runOnUiThread(() -> {
                 debugText.append(text + '\n');
+            });
+        }
+    }
+
+    private void onClear(View v) {
+        if (debugText == null) {
+            buffer = "";
+        } else {
+            getActivity().runOnUiThread(() -> {
+                debugText.setText("");
             });
         }
     }

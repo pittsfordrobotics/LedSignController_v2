@@ -47,7 +47,6 @@ public class ScanFragment extends ScanView {
      *
      * @return A new instance of fragment ScanFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ScanFragment newInstance(ViewModel viewModel) {
         ScanFragment fragment = new ScanFragment();
         fragment.viewModel = viewModel;
@@ -88,11 +87,10 @@ public class ScanFragment extends ScanView {
 
     @Override
     public void setConnectionFailed() {
-        currentDevice = null;
-        connectionStatus.setText("Connection failed!");
-        scanButton.setEnabled(true);
-        connectButton.setEnabled(true);
-        deviceList.setEnabled(true);
+        getActivity().runOnUiThread(() -> {
+            setDisconnectedState();
+            connectionStatus.setText("Connection failed!");
+        });
     }
 
     @Override
@@ -105,20 +103,19 @@ public class ScanFragment extends ScanView {
     public void setBluetoothEnabled() {
         bluetoothEnabled = true;
         if (scanButton != null) {
-            scanButton.setEnabled(true);
+            resetToInitialState();
         }
     }
 
-    public void resetToInitialState() {
+    private void resetToInitialState() {
         discoveredDeviceListAdapter.clear();
         scanButton.setEnabled(bluetoothEnabled);
         scanButton.setVisibility(View.VISIBLE);
         stopScanButton.setVisibility(View.GONE);
         connectButton.setVisibility(View.GONE);
         disconnectButton.setVisibility(View.GONE);
-        connectionStatus.setText("Press SCAN to look for connections.");
+        connectionStatus.setText(bluetoothEnabled ? "Press SCAN to look for connections." : "Bluetooth has not been enabled.");
         discoveredDevicesText.setVisibility(View.GONE);
-        scanButton.setEnabled(true);
         connectButton.setEnabled(true);
         disconnectButton.setEnabled(true);
         deviceList.setEnabled(true);
@@ -187,10 +184,8 @@ public class ScanFragment extends ScanView {
     }
 
     private void onDisconnect(View v) {
-        if (currentDevice != null) {
-            connectionStatus.setText("Disconnecting from device...");
-            disconnectButton.setEnabled(false);
-            viewModel.disconnect(currentDevice);
-        }
+        connectionStatus.setText("Disconnecting from device...");
+        disconnectButton.setEnabled(false);
+        viewModel.disconnect(currentDevice);
     }
 }

@@ -81,7 +81,10 @@ public class ViewModel {
 
     public void disconnect(ConnectedDevice device) {
         logMessage("Disconnecting...");
-        btProvider.disconnect(device);
+        if (device != null) {
+            btProvider.disconnect(device);
+        }
+
         logMessage("Disconnected.");
         scanView.setDisconnectedState();
         configurationView.setDisconnectedState();

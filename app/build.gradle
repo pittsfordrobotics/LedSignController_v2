@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.bleledcontroller'
+    namespace 'com.example.ledcontrollerv2'
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.example.bleledcontroller"
+        applicationId "com.example.ledcontrollerv2"
         minSdk 24
         targetSdk 32
         versionCode 1

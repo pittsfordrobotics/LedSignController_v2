@@ -50,6 +50,7 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
     public void startScan(Consumer<BleDevice> discoveredDeviceCallback) {
         if (!btAdapter.isEnabled()) {
             logMessage("Bluetooth adapter disabled!");
+            currentScanCallback = null;
             return;
         }
 
@@ -77,7 +78,9 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
 
     @Override
     public void stopScan() {
-        btAdapter.getBluetoothLeScanner().stopScan(currentScanCallback);
+        if (currentScanCallback != null) {
+            btAdapter.getBluetoothLeScanner().stopScan(currentScanCallback);
+        }
     }
 
     @Override

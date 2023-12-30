@@ -153,7 +153,7 @@ public class ScanFragment extends ScanView {
     }
 
     private void onStopScan(View v) {
-        connectionStatus.setText("");
+        connectionStatus.setText("Press SCAN to look for connections.");
         stopScanButton.setVisibility(View.GONE);
         scanButton.setVisibility(View.VISIBLE);
 

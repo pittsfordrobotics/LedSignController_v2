@@ -20,18 +20,25 @@
         android:layout_column="1"
         android:layout_width="50dp"
         android:layout_height="25dp"
+        android:layout_gravity="center_vertical"
         android:min="0"
         android:max="255"
         />
 
-    <TextView
+    <EditText
         android:id="@+id/txtValue"
         android:layout_column="2"
-        android:layout_width="25dp"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="25dp"
+        android:minWidth="40dp"
+        android:inputType="number"
         android:layout_gravity="center"
         android:textAlignment="center"
-        android:text="0"
-        />
+        android:imeOptions="actionDone"
+        android:maxLength="3"
+        android:selectAllOnFocus="true"
+        android:background="@null"
+        android:textSize="15dp"
+        android:text="0"/>
 
 </TableRow>

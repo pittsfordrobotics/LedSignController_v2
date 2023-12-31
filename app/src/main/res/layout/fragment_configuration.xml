@@ -5,6 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.ConfigurationFragment">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -284,4 +288,5 @@
                 android:text="5" />
         </LinearLayout>
     </LinearLayout>
+    </ScrollView>
 </FrameLayout>

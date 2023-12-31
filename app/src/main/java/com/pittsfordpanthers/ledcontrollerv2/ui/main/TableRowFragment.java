@@ -4,9 +4,11 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -69,9 +71,9 @@ public class TableRowFragment extends Fragment {
         rowContainer = view.findViewById(R.id.tableRow);
         txtParameterName = view.findViewById(R.id.txtParameterName);
         sbParameterValue = view.findViewById(R.id.seekBarParameterValue);
-
         sbParameterValue.setOnSeekBarChangeListener(createSeekBarChangeListener());
         txtParameterValue = view.findViewById(R.id.txtValue);
+        txtParameterValue.setOnEditorActionListener(this::editorActionListener);
         isInitialized = true;
         refresh();
         return view;
@@ -130,6 +132,7 @@ public class TableRowFragment extends Fragment {
         sbParameterValue.setEnabled(enabled);
         rowContainer.setVisibility(visibility);
         sbParameterValue.setProgress(lastSetValue);
+        txtParameterValue.clearFocus();
     }
 
     private TableRowFragment getOwningRowFragment() {
@@ -155,5 +158,18 @@ public class TableRowFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         };
+    }
+
+    private boolean editorActionListener(TextView textView, int i, KeyEvent keyEvent) {
+        boolean handled = false;
+        Integer value = Integer.parseInt(textView.getText().toString());
+        if (value < 0) {
+            value = 0;
+        }
+        if (value > 255) {
+            value = 255;
+        }
+        setParameterValue(value);
+        return handled;
     }
 }

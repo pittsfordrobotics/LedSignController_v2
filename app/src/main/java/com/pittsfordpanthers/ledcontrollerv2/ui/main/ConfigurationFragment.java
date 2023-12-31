@@ -378,14 +378,14 @@ public class ConfigurationFragment extends ConfigurationView {
     private View colorBeingSelected = null;
 
     private void onColorSelectionCompleted(View v) {
-         if (colorBeingSelected != null) {
-             View colorPreview = view.findViewById(R.id.colorPreview);
-             ColorDrawable drawable = (ColorDrawable) colorPreview.getBackground();
-             colorBeingSelected.setBackgroundColor(drawable.getColor());
-         }
+        if (colorBeingSelected != null) {
+            View colorPreview = view.findViewById(R.id.colorPreview);
+            ColorDrawable drawable = (ColorDrawable) colorPreview.getBackground();
+            colorBeingSelected.setBackgroundColor(drawable.getColor());
+        }
 
-         colorBeingSelected = null;
-         colorChooser.setVisibility(View.GONE);
+        colorBeingSelected = null;
+        colorChooser.setVisibility(View.GONE);
     }
 
     private void onColorSelectionCanceled(View v) {

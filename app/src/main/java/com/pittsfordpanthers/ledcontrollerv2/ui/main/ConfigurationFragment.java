@@ -1,5 +1,8 @@
 package com.pittsfordpanthers.ledcontrollerv2.ui.main;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -18,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pittsfordpanthers.ledcontrollerv2.R;
 import com.pittsfordpanthers.ledcontrollerv2.ViewModel;
@@ -45,13 +49,14 @@ public class ConfigurationFragment extends ConfigurationView {
     private Spinner displayPatternList;
     private Spinner colorPatternList;
     private LinearLayout colorChooser;
-    private TableRowFragment brightness;
-    private TableRowFragment speed;
-    private TableRowFragment[] parameters;
+    private TableRowFragment brightnessFragment;
+    private TableRowFragment speedFragment;
+    private TableRowFragment[] parameterFragments;
     private View[] colorBars;
     private TableRowFragment redFragment;
     private TableRowFragment greenFragment;
     private TableRowFragment blueFragment;
+    private Button[] btnPresets;
 
     public ConfigurationFragment() {
         // Required empty public constructor
@@ -113,8 +118,8 @@ public class ConfigurationFragment extends ConfigurationView {
         ArrayAdapter<DisplayPatternOptionData> displayPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
         displayPatternList.setAdapter(displayPatternListAdapter);
         displayPatternList.setOnItemSelectedListener(this.onDisplayPatternSelected);
-        brightness = TableRowFragment.newInstance("Brightness");
-        speed = TableRowFragment.newInstance("Speed");
+        brightnessFragment = TableRowFragment.newInstance("Brightness");
+        speedFragment = TableRowFragment.newInstance("Speed");
         redFragment = TableRowFragment.newInstance("Red");
         redFragment.setOnValueChangeListener(onColorChangeListener);
         greenFragment = TableRowFragment.newInstance("Green");
@@ -125,6 +130,19 @@ public class ConfigurationFragment extends ConfigurationView {
         btnCancelColor.setOnClickListener(this::onColorSelectionCanceled);
         Button btnSelectColor = view.findViewById(R.id.selectColor);
         btnSelectColor.setOnClickListener(this::onColorSelectionCompleted);
+
+        btnPresets = new Button[] {
+                view.findViewById(R.id.preset1),
+                view.findViewById(R.id.preset2),
+                view.findViewById(R.id.preset3),
+                view.findViewById(R.id.preset4),
+                view.findViewById(R.id.preset5)
+        };
+
+        for (int i = 0; i < btnPresets.length; i++) {
+            btnPresets[i].setOnClickListener(readPreferenceListener(i));
+            btnPresets[i].setOnLongClickListener(writePreferenceListener(i));
+        }
 
         colorBars = new View[]{
             view.findViewById(R.id.color1),
@@ -137,7 +155,7 @@ public class ConfigurationFragment extends ConfigurationView {
             colorBar.setOnClickListener(this::onColorSelectionStart);
         }
 
-        parameters = new TableRowFragment[] {
+        parameterFragments = new TableRowFragment[] {
                 TableRowFragment.newInstance("Parameter 1"),
                 TableRowFragment.newInstance("Parameter 2"),
                 TableRowFragment.newInstance("Parameter 3"),
@@ -149,9 +167,9 @@ public class ConfigurationFragment extends ConfigurationView {
         // Dynamically add the parameter sliders
         FragmentManager fm = getParentFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.configTable, brightness);
-        ft.add(R.id.configTable, speed);
-        for (TableRowFragment parameter:parameters) {
+        ft.add(R.id.configTable, brightnessFragment);
+        ft.add(R.id.configTable, speedFragment);
+        for (TableRowFragment parameter: parameterFragments) {
             ft.add(R.id.configTable, parameter);
         }
         ft.add(R.id.colorParameterTable, redFragment);
@@ -186,8 +204,8 @@ public class ConfigurationFragment extends ConfigurationView {
         ((ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter()).clear();
         colorPatternList.setEnabled(false);
         ((ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter()).clear();
-        brightness.setEnabled(false);
-        speed.setEnabled(false);
+        brightnessFragment.setEnabled(false);
+        speedFragment.setEnabled(false);
         clearParameterList();
         clearColorList();
     }
@@ -198,8 +216,8 @@ public class ConfigurationFragment extends ConfigurationView {
         btnUpdate.setEnabled(true);
         displayPatternList.setEnabled(true);
         colorPatternList.setEnabled(true);
-        brightness.setEnabled(true);
-        speed.setEnabled(true);
+        brightnessFragment.setEnabled(true);
+        speedFragment.setEnabled(true);
 
         // Populate dropdowns
         List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
@@ -212,32 +230,14 @@ public class ConfigurationFragment extends ConfigurationView {
         displayPatternAdapter.addAll(displayOptions);
 
         // Set current values
-        brightness.setParameterValue(connectedDevice.getBrightness());
-        speed.setParameterValue(connectedDevice.getSpeed());
+        brightnessFragment.setParameterValue(connectedDevice.getBrightness());
+        speedFragment.setParameterValue(connectedDevice.getSpeed());
         PatternData patternData = connectedDevice.getCurrentPatternData();
-        // Find the index of the current color/display pattern
-        int index = 0;
-        for (ColorPatternOptionData option:connectedDevice.getPatternOptionData().getColorPatternOptions()) {
-            if (option.getId() == patternData.getColorPatternId())
-            {
-                colorPatternList.setSelection(index);
-                break;
-            }
-            index++;
-        }
+        selectColorPatternById(patternData.getColorPatternId());
+        selectDisplayPatternById(patternData.getDisplayPatternId());
 
-        index = 0;
-        for (DisplayPatternOptionData option:connectedDevice.getPatternOptionData().getDisplayPatternOptions()) {
-            if (option.getId() == patternData.getDisplayPatternId())
-            {
-                displayPatternList.setSelection(index);
-                break;
-            }
-            index++;
-        }
-
-        for (int i = 0; i < parameters.length; i++) {
-            parameters[i].setParameterValue(patternData.getParameterValue(i));
+        for (int i = 0; i < parameterFragments.length; i++) {
+            parameterFragments[i].setParameterValue(patternData.getParameterValue(i));
         }
 
         for (int i = 0; i < colorBars.length; i++) {
@@ -249,7 +249,7 @@ public class ConfigurationFragment extends ConfigurationView {
     }
 
     private void clearParameterList() {
-        for (TableRowFragment parameter:parameters) {
+        for (TableRowFragment parameter: parameterFragments) {
             parameter.setVisibility(View.GONE);
         }
     }
@@ -284,17 +284,17 @@ public class ConfigurationFragment extends ConfigurationView {
         ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
         int paramNumber = 0;
         for (String parameterName:colorData.getParameterNames()) {
-            parameters[paramNumber].setParameterName(parameterName);
-            parameters[paramNumber].setVisibility(View.VISIBLE);
-            parameters[paramNumber].setEnabled(true);
+            parameterFragments[paramNumber].setParameterName(parameterName);
+            parameterFragments[paramNumber].setVisibility(View.VISIBLE);
+            parameterFragments[paramNumber].setEnabled(true);
             paramNumber++;
         }
 
         DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
         for (String parameterName:displayData.getParameterNames()) {
-            parameters[paramNumber].setParameterName(parameterName);
-            parameters[paramNumber].setVisibility(View.VISIBLE);
-            parameters[paramNumber].setEnabled(true);
+            parameterFragments[paramNumber].setParameterName(parameterName);
+            parameterFragments[paramNumber].setVisibility(View.VISIBLE);
+            parameterFragments[paramNumber].setEnabled(true);
             paramNumber++;
         }
     }
@@ -304,12 +304,12 @@ public class ConfigurationFragment extends ConfigurationView {
         colorChooser.setVisibility(View.GONE);
         colorPatternList.setEnabled(false);
         displayPatternList.setEnabled(false);
-        brightness.setEnabled(false);
-        speed.setEnabled(false);
+        brightnessFragment.setEnabled(false);
+        speedFragment.setEnabled(false);
         for (View colorBar:colorBars) {
             colorBar.setEnabled(false);
         }
-        for (TableRowFragment parameter:parameters) {
+        for (TableRowFragment parameter: parameterFragments) {
             parameter.setEnabled(false);
         }
         btnReload.setEnabled(false);
@@ -326,8 +326,8 @@ public class ConfigurationFragment extends ConfigurationView {
         statusText.setText("Updating device...");
         // Update the properties and send it to the ViewModel to be updated.
         disableAll();
-        connectedDevice.setBrightness((byte)brightness.getParameterValue());
-        connectedDevice.setSpeed((byte)speed.getParameterValue());
+        connectedDevice.setBrightness((byte) brightnessFragment.getParameterValue());
+        connectedDevice.setSpeed((byte) speedFragment.getParameterValue());
         PatternData newPatternData = new PatternData();
         newPatternData.setColorPatternId((byte)((ColorPatternOptionData)colorPatternList.getSelectedItem()).getId());
         newPatternData.setDisplayPatternId((byte)((DisplayPatternOptionData)displayPatternList.getSelectedItem()).getId());
@@ -335,8 +335,8 @@ public class ConfigurationFragment extends ConfigurationView {
             newPatternData.setColorValue(i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
         }
 
-        for (int i = 0; i < parameters.length; i++) {
-            newPatternData.setParameterValue(i, (byte)parameters[i].getParameterValue());
+        for (int i = 0; i < parameterFragments.length; i++) {
+            newPatternData.setParameterValue(i, (byte) parameterFragments[i].getParameterValue());
         }
 
         connectedDevice.setPatternData(newPatternData);
@@ -402,4 +402,79 @@ public class ConfigurationFragment extends ConfigurationView {
         colorBeingSelected = sourceColorBar;
         colorChooser.setVisibility(View.VISIBLE);
     }
+
+    private void selectColorPatternById(int colorPatternId) {
+        for (int i = 0; i < colorPatternList.getCount(); i++) {
+            ColorPatternOptionData colorPattern = (ColorPatternOptionData) colorPatternList.getItemAtPosition(i);
+            if (colorPattern.getId() == colorPatternId) {
+                colorPatternList.setSelection(i);
+                break;
+            }
+        }
+    }
+
+    private void selectDisplayPatternById(int displayPatternId) {
+        for (int i = 0; i < displayPatternList.getCount(); i++) {
+            DisplayPatternOptionData displayPattern = (DisplayPatternOptionData) displayPatternList.getItemAtPosition(i);
+            if (displayPattern.getId() == displayPatternId) {
+                displayPatternList.setSelection(i);
+                break;
+            }
+        }
+    }
+
+    private View.OnClickListener readPreferenceListener(int buttonNumber) {
+        return view -> {
+            int speed = getPreferenceIntValue("Pref_Speed" + buttonNumber);
+            int brightness = getPreferenceIntValue("Pref_Brightness" + buttonNumber);
+            int colorId = getPreferenceIntValue("Pref_ColorId" + buttonNumber);
+            int displayId = getPreferenceIntValue("Pref_DisplayId" + buttonNumber);
+
+            if (speed < 0 || brightness < 0 || colorId < 0 || displayId < 0) {
+                viewModel.logMessage("At least one preference value could not be read for button " + (buttonNumber + 1));
+                return;
+            }
+
+            brightnessFragment.setParameterValue(brightness);
+            speedFragment.setParameterValue(speed);
+            selectColorPatternById(colorId);
+            selectDisplayPatternById(displayId);
+            for (int i = 0; i < parameterFragments.length; i++) {
+                parameterFragments[i].setParameterValue(getPreferenceIntValue("Pref_Param" + buttonNumber + "_" + i));
+            }
+            for (int i = 0; i < colorBars.length; i++) {
+                colorBars[i].setBackgroundColor(getPreferenceIntValue("Pref_Color" + buttonNumber + "_" + i));
+            }
+        };
+    }
+
+    private int getPreferenceIntValue(String prefName) {
+        SharedPreferences pref = getActivity().getPreferences(MODE_PRIVATE);
+        if (!pref.contains(prefName)) {
+            return -1;
+        }
+
+        return pref.getInt(prefName, -1);
+    }
+
+    private View.OnLongClickListener writePreferenceListener(int buttonNumber) {
+        return view -> {
+            SharedPreferences pref = getActivity().getPreferences(MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putInt("Pref_Speed" + buttonNumber, speedFragment.getParameterValue());
+            editor.putInt("Pref_Brightness" + buttonNumber, brightnessFragment.getParameterValue());
+            editor.putInt("Pref_ColorId" + buttonNumber, ((ColorPatternOptionData) colorPatternList.getSelectedItem()).getId());
+            editor.putInt("Pref_DisplayId" + buttonNumber, ((DisplayPatternOptionData) displayPatternList.getSelectedItem()).getId());
+            for (int i = 0; i < parameterFragments.length; i++) {
+                editor.putInt("Pref_Param" + buttonNumber + "_" + i, parameterFragments[i].getParameterValue());
+            }
+            for (int i = 0; i < colorBars.length; i++) {
+                editor.putInt("Pref_Color" + buttonNumber + "_" + i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
+            }
+            editor.apply();
+            Toast.makeText(getContext(), "Values set for preset number " + (buttonNumber + 1) + ".", Toast.LENGTH_SHORT).show();
+            return true;
+        };
+    }
+
 }

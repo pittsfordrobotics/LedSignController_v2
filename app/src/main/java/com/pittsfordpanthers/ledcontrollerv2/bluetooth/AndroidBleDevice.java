@@ -49,7 +49,6 @@ public class AndroidBleDevice extends ConnectedDevice {
     public void disconnect() {
         if (bluetoothGatt != null) {
             bluetoothGatt.close();
-            bluetoothGatt.disconnect();
         }
     }
 

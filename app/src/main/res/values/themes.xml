@@ -6,8 +6,8 @@
         <item name="colorPrimaryVariant">@color/pink</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorSecondary">@color/pink_light</item>
+        <item name="colorSecondaryVariant">@color/pink</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
@@ -22,11 +22,4 @@
     <style name="Theme.BLELEDController.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.BLELEDController.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="Button.Pink" parent="ThemeOverlay.AppCompat">
-        <item name="colorAccent">#E616A1</item>
-    </style>
-    <style name="Button.Red" parent="ThemeOverlay.AppCompat">
-        <item name="colorAccent">@color/teal_200</item>
-    </style>
 </resources>

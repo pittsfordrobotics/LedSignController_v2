@@ -113,6 +113,13 @@ public class ViewModel {
 
     private void onDeviceConnected(ConnectedDevice device) {
         logMessage("Connected to device: " + device.getName());
+        // Hook into the device's update callback to process Bluetooth notifications.
+        // For now, take the simple approach and just use this method, since
+        // it will cause the Configuration View to refresh all properties.
+        if (device.getOnBluetoothPropertyUpdated() != null) {
+            device.setOnBluetoothPropertyUpdated(this::onDeviceConnected);
+        }
+
         scanView.setConnectedDevice(device);
         configurationView.setConnectedDevice(device);
     }

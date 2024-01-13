@@ -164,6 +164,17 @@ public class ConfigurationFragment extends ConfigurationView {
                 TableRowFragment.newInstance("Parameter 6")
         };
 
+        int[] presetColorButtonIds = new int[] {
+                R.id.presetColor1,
+                R.id.presetColor2,
+                R.id.presetColor3
+        };
+
+        for (int id:presetColorButtonIds) {
+            Button b = view.findViewById(id);
+            b.setOnClickListener(this::onPresetColorButtonClicked);
+        }
+
         // Dynamically add the parameter sliders
         FragmentManager fm = getParentFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -401,6 +412,14 @@ public class ConfigurationFragment extends ConfigurationView {
         blueFragment.setParameterValue((byte)Color.blue(color));
         colorBeingSelected = sourceColorBar;
         colorChooser.setVisibility(View.VISIBLE);
+    }
+
+    private void onPresetColorButtonClicked(View presetColorButton) {
+        Button b = (Button)presetColorButton;
+        int color = Color.parseColor(b.getTag().toString());
+        redFragment.setParameterValue(Color.red(color));
+        greenFragment.setParameterValue(Color.green(color));
+        blueFragment.setParameterValue(Color.blue(color));
     }
 
     private void selectColorPatternById(int colorPatternId) {

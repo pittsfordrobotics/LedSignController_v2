@@ -112,6 +112,21 @@ public class AndroidBleDevice extends ConnectedDevice {
         }));
     }
 
+    public void processCharacteristicNotification(BluetoothGattCharacteristic characteristic) {
+        logger.accept("Received a notification callback for characteristic " + characteristic.getUuid());
+        // See if we can find a read operation for the characteristic.
+        // If found, execute the operation's callback.
+        BleReadCharacteristicOperation op = readOperations.get(characteristic.getUuid());
+        if (op != null) {
+            op.getCallback().accept(characteristic);
+        }
+
+        // Let any listener know that something's been updated.
+        if (onBluetoothPropertyUpdated != null) {
+            onBluetoothPropertyUpdated.accept(this);
+        }
+    }
+
     private BluetoothGattCharacteristic findCharacteristic(BluetoothGattService service, UUID id, String name) {
         BluetoothGattCharacteristic gattChar = service.getCharacteristic(id);
         if (gattChar == null) {

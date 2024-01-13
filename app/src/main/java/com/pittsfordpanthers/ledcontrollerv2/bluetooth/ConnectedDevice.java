@@ -1,13 +1,19 @@
 package com.pittsfordpanthers.ledcontrollerv2.bluetooth;
 
+import android.bluetooth.BluetoothGattCharacteristic;
+
 import com.pittsfordpanthers.ledcontrollerv2.signdata.PatternData;
 import com.pittsfordpanthers.ledcontrollerv2.signdata.PatternOptionData;
+
+import java.util.function.Consumer;
 
 public abstract class ConnectedDevice extends BleDevice {
     private PatternOptionData patternOptionData;
     private byte brightness;
     private byte speed;
     private PatternData patternData;
+
+    protected Consumer<ConnectedDevice> onBluetoothPropertyUpdated;
 
     protected ConnectedDevice(String name) {
         super(name);
@@ -34,4 +40,12 @@ public abstract class ConnectedDevice extends BleDevice {
     public byte getSpeed() { return speed; }
 
     public void setSpeed(byte speed) { this.speed = speed; }
+
+    public Consumer<ConnectedDevice> getOnBluetoothPropertyUpdated() {
+        return onBluetoothPropertyUpdated;
+    }
+
+    public void setOnBluetoothPropertyUpdated(Consumer<ConnectedDevice> onBluetoothPropertyUpdated) {
+        this.onBluetoothPropertyUpdated = onBluetoothPropertyUpdated;
+    }
 }

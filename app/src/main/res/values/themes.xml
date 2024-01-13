@@ -22,4 +22,11 @@
     <style name="Theme.BLELEDController.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.BLELEDController.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Button.Pink" parent="ThemeOverlay.AppCompat">
+        <item name="colorAccent">#E616A1</item>
+    </style>
+    <style name="Button.Red" parent="ThemeOverlay.AppCompat">
+        <item name="colorAccent">@color/teal_200</item>
+    </style>
 </resources>

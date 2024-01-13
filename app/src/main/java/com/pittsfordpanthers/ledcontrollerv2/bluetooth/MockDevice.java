@@ -1,5 +1,7 @@
 package com.pittsfordpanthers.ledcontrollerv2.bluetooth;
 
+import android.bluetooth.BluetoothGattCharacteristic;
+
 import com.pittsfordpanthers.ledcontrollerv2.signdata.PatternOptionData;
 
 public class MockDevice extends ConnectedDevice {

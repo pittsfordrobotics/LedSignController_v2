@@ -290,6 +290,12 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
             public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
                 completeOperation();
             }
+
+            @Override
+            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+                // Received a notification that the characteristic value has changed on the remote device.
+                bleDevice.processCharacteristicNotification(characteristic);
+            }
         };
     }
 }

@@ -17,9 +17,11 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.os.Handler;
 import android.os.ParcelUuid;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +30,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class AndroidBluetoothProvider implements BluetoothProvider {
+    private static final int OperationTimeoutMillis = 10000;
+    private static final int OperationMaxRetries = 3;
     private Context context;
     private BluetoothAdapter btAdapter;
     private Consumer<String> logger;
@@ -35,6 +39,9 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
     private ScanCallback currentScanCallback;
     private Queue<BleOperation> operationQueue = new LinkedList<>();
     private BleOperation pendingOperation = null;
+    private int operationRetryCount = 0;
+    private long operationStartTimeMillis = 0;
+    private Handler handler = new Handler();
 
     public AndroidBluetoothProvider(Context context) {
         this.context = context;
@@ -163,21 +170,62 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
             completeOperation();
             return;
         }
+
+        operationRetryCount = 0;
+        operationStartTimeMillis = Calendar.getInstance().getTimeInMillis();
+        submitPendingOperation();
+    }
+
+    private void submitPendingOperation() {
         if (pendingOperation instanceof BleReadCharacteristicOperation) {
             BleReadCharacteristicOperation op = (BleReadCharacteristicOperation) pendingOperation;
             op.getBluetoothGatt().readCharacteristic(op.getCharacteristic());
+            handler.postDelayed(this::operationTimedOut, OperationTimeoutMillis);
             return;
         }
+
         if (pendingOperation instanceof BleWriteCharacteristicOperation) {
             BleWriteCharacteristicOperation op = (BleWriteCharacteristicOperation) pendingOperation;
             BluetoothGattCharacteristic characteristic = op.getCharacteristic();
             characteristic.setValue(op.getTargetValue());
-
             op.getBluetoothGatt().writeCharacteristic(characteristic);
+            handler.postDelayed(this::operationTimedOut, OperationTimeoutMillis);
             return;
         }
 
         logMessage("Unknown operation type encountered. Skipping.");
+    }
+
+    private void operationTimedOut() {
+        if (pendingOperation == null) {
+            // The operation already finished.
+            return;
+        }
+
+        long timeSinceStartMillis = Calendar.getInstance().getTimeInMillis() - operationStartTimeMillis;
+        if (timeSinceStartMillis <= OperationTimeoutMillis) {
+            // Not enough time elapsed.
+            // This callback was likely started by an earlier operation that already completed.
+            return;
+        }
+
+        operationRetryCount++;
+        if (operationRetryCount < OperationMaxRetries) {
+            logMessage("Operation timed out. Retrying...");
+            operationStartTimeMillis = Calendar.getInstance().getTimeInMillis();
+            submitPendingOperation();
+            return;
+        }
+
+        // If we made it this far, we ran out of retries.
+        // Assume that we ran out of retries due to service issues, and disconnect.
+        // Remember that pendingOperation can be changed underneath us, so grab a copy.
+        BleOperation capturedOperation = pendingOperation;
+        if (capturedOperation != null) {
+            logMessage("Operation exceeded the retry limit. Closing connection.");
+            BluetoothGatt gatt = capturedOperation.getBluetoothGatt();
+            gatt.disconnect();
+        }
     }
 
     private void logMessage(String message) {
@@ -274,7 +322,7 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
                                              BluetoothGattCharacteristic characteristic,
                                              int status) {
 
-                if (!(pendingOperation instanceof BleReadCharacteristicOperation)) {
+                if (!(pendingOperation != null && pendingOperation instanceof BleReadCharacteristicOperation)) {
                     // Something unexpected happened!
                     logMessage("ERROR: In the 'read' callback, but the pending operation is not a read operation.");
                     completeOperation();

@@ -30,7 +30,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class AndroidBluetoothProvider implements BluetoothProvider {
-    private static final int OperationTimeoutMillis = 10000;
+    private static final int OperationTimeoutMillis = 5000;
     private static final int OperationMaxRetries = 3;
     private Context context;
     private BluetoothAdapter btAdapter;
@@ -322,7 +322,7 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
                                              BluetoothGattCharacteristic characteristic,
                                              int status) {
 
-                if (!(pendingOperation != null && pendingOperation instanceof BleReadCharacteristicOperation)) {
+                if (!(pendingOperation instanceof BleReadCharacteristicOperation)) {
                     // Something unexpected happened!
                     logMessage("ERROR: In the 'read' callback, but the pending operation is not a read operation.");
                     completeOperation();

@@ -46,6 +46,7 @@ public class AndroidBleDevice extends ConnectedDevice {
     public void setBluetoothGatt(BluetoothGatt gatt) {
         bluetoothGatt = gatt;
     }
+
     public void disconnect() {
         if (bluetoothGatt != null) {
             bluetoothGatt.close();
@@ -132,6 +133,15 @@ public class AndroidBleDevice extends ConnectedDevice {
         if (gattChar == null) {
             logger.accept("Characteristic '" + name + "' not found!");
         }
+
+        // Note for the future:
+        // To enable notifications to be processed, we need to explicitly
+        // register for the notifications for each characteristic.
+        // Not all characteristics need to be monitored....
+        // Probably add a 'enableNotifications' parameter to this method?
+        //
+        // Ex:
+        // bluetoothGatt.setCharacteristicNotification(gattChar, true);
         return gattChar;
     }
 

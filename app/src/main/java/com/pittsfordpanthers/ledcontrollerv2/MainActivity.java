@@ -18,6 +18,8 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
     private static final int RUNTIME_PERMISSION_REQUEST_CODE = 1;
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             viewModel.logMessage("No BT adapter detected. Using a MOCK instead.");
             return new MockBluetoothProvider();
         } else {
+            viewModel.logMessage("API version: " + Build.VERSION.SDK_INT);
             // Request permissions if needed
             if (hasRequiredRuntimePermissions()) {
                 viewModel.logMessage("Bluetooth permissions are already granted.");
@@ -96,7 +99,10 @@ public class MainActivity extends AppCompatActivity {
     //
     private boolean hasRequiredRuntimePermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return hasPermission(Manifest.permission.BLUETOOTH_SCAN) && hasPermission(Manifest.permission.BLUETOOTH_CONNECT);
+            return hasPermission(Manifest.permission.BLUETOOTH_SCAN)
+                    && hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
+                    && hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    && hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
         } else {
             return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION);
         }
@@ -111,13 +117,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            requestLocationPermission();
+            requestLegacyBluetoothPermission();
         } else {
             requestBluetoothPermissions();
         }
     }
 
-    private void requestLocationPermission() {
+    private void requestLegacyBluetoothPermission() {
+        // Prior to v31 ("S"), location permissions are required.
         ActivityCompat.requestPermissions(
                 this,
                 new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
@@ -129,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(
                 this,
                 new String[] {
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.BLUETOOTH_SCAN,
                         Manifest.permission.BLUETOOTH_CONNECT
                 },

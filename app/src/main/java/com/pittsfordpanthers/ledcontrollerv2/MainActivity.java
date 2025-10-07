@@ -1,6 +1,7 @@
 package com.pittsfordpanthers.ledcontrollerv2;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -44,10 +45,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private BluetoothProvider CreateBluetoothProvider() {
-        boolean isBluetoothAvailable = ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter() != null;
+        BluetoothAdapter btAdapter = ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
+        boolean isBluetoothAvailable = btAdapter != null && btAdapter.isEnabled();
 
         if (!isBluetoothAvailable) {
-            viewModel.logMessage("No BT adapter detected. Using a MOCK instead.");
+            viewModel.logMessage("No BT adapter detected or BT is not enabled. Using a MOCK instead.");
             return new MockBluetoothProvider();
         } else {
             viewModel.logMessage("API version: " + Build.VERSION.SDK_INT);

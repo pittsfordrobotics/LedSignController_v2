@@ -7,8 +7,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -30,7 +32,6 @@ public class ScanFragment extends ScanView {
     private TextView discoveredDevicesText = null;
     private Button scanButton = null;
     private Button stopScanButton = null;
-    private Button connectButton = null;
     private Button disconnectButton = null;
     private ArrayAdapter<BleDevice> discoveredDeviceListAdapter;
     private ListView deviceList = null;
@@ -79,8 +80,8 @@ public class ScanFragment extends ScanView {
         getActivity().runOnUiThread(() -> {
             discoveredDeviceListAdapter.clear();
             scanButton.setVisibility(View.GONE);
-            connectButton.setVisibility(View.GONE);
             disconnectButton.setVisibility(View.VISIBLE);
+            discoveredDevicesText.setVisibility(View.GONE);
             connectionStatus.setText("Connected to: " + device.getName());
         });
     }
@@ -112,11 +113,9 @@ public class ScanFragment extends ScanView {
         scanButton.setEnabled(bluetoothEnabled);
         scanButton.setVisibility(View.VISIBLE);
         stopScanButton.setVisibility(View.GONE);
-        connectButton.setVisibility(View.GONE);
         disconnectButton.setVisibility(View.GONE);
         connectionStatus.setText(bluetoothEnabled ? "Press SCAN to look for connections." : "Bluetooth has not been enabled.");
-        discoveredDevicesText.setVisibility(View.GONE);
-        connectButton.setEnabled(true);
+        discoveredDevicesText.setVisibility(View.INVISIBLE);
         disconnectButton.setEnabled(true);
         deviceList.setEnabled(true);
     }
@@ -124,8 +123,6 @@ public class ScanFragment extends ScanView {
     private void initialize(View view) {
         scanButton = view.findViewById(R.id.scan);
         stopScanButton = view.findViewById(R.id.stopScan);
-        connectButton = view.findViewById(R.id.connect);
-        connectButton.setOnClickListener(this::onConnect);
         disconnectButton = view.findViewById(R.id.disconnect);
         disconnectButton.setOnClickListener(this::onDisconnect);
         connectionStatus = view.findViewById(R.id.connectionStatus);
@@ -133,8 +130,28 @@ public class ScanFragment extends ScanView {
         stopScanButton.setOnClickListener(this::onStopScan);
         discoveredDevicesText = view.findViewById(R.id.discoveredDevicesText);
         deviceList = view.findViewById(R.id.deviceList);
-        discoveredDeviceListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice);
+        discoveredDeviceListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_selectable_list_item);
         deviceList.setAdapter(discoveredDeviceListAdapter);
+        deviceList.setOnItemClickListener(this::onDiscoveredDeviceItemClick);
+    }
+
+    private void onDiscoveredDeviceItemClick (AdapterView<?> parent,
+                                             View view,
+                                             int position,
+                                             long id)
+    {
+        if (position < 0) {
+            // Nothing selected.
+            return;
+        }
+
+        stopScanButton.callOnClick();
+        connectionStatus.setText("Connecting to device...");
+        discoveredDevicesText.setVisibility(View.INVISIBLE);
+        scanButton.setEnabled(false);
+        deviceList.setEnabled(false);
+        BleDevice device = (BleDevice) deviceList.getItemAtPosition(position);
+        viewModel.connect(device);
     }
 
     private void onStartScan(View v) {
@@ -143,8 +160,6 @@ public class ScanFragment extends ScanView {
         discoveredDeviceListAdapter.clear();
         scanButton.setVisibility(View.GONE);
         stopScanButton.setVisibility(View.VISIBLE);
-        connectButton.setEnabled(true);
-        connectButton.setVisibility(View.GONE);
         disconnectButton.setVisibility(View.GONE);
         connectionStatus.setText("Scanning...");
         discoveredDevicesText.setVisibility(View.VISIBLE);
@@ -159,28 +174,11 @@ public class ScanFragment extends ScanView {
 
         if (discoveredDeviceListAdapter.getCount() > 0) {
             connectionStatus.setText("Select a device to connect to.");
-            connectButton.setVisibility(View.VISIBLE);
         } else {
-            discoveredDevicesText.setVisibility(View.GONE);
+            discoveredDevicesText.setVisibility(View.INVISIBLE);
         }
 
         viewModel.stopScan();
-    }
-
-    private void onConnect(View v) {
-        int itemPosition = deviceList.getCheckedItemPosition();
-        if (itemPosition < 0) {
-            // Nothing selected.
-            return;
-        }
-
-        connectionStatus.setText("Connecting to device...");
-        discoveredDevicesText.setVisibility(View.GONE);
-        scanButton.setEnabled(false);
-        connectButton.setEnabled(false);
-        deviceList.setEnabled(false);
-        BleDevice device = (BleDevice) deviceList.getItemAtPosition(itemPosition);
-        viewModel.connect(device);
     }
 
     private void onDisconnect(View v) {

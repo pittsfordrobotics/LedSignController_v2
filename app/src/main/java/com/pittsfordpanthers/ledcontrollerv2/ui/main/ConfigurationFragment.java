@@ -68,7 +68,6 @@ public class ConfigurationFragment extends ConfigurationView {
      *
      * @return A new instance of fragment ConfigurationFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ConfigurationFragment newInstance(ViewModel viewModel) {
         ConfigurationFragment fragment = new ConfigurationFragment();
         fragment.viewModel = viewModel;

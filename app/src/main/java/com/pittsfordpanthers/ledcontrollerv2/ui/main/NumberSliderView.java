@@ -1,6 +1,7 @@
 package com.pittsfordpanthers.ledcontrollerv2.ui.main;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -36,25 +37,25 @@ public class NumberSliderView extends LinearLayout {
     public NumberSliderView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        /*
-        Add attributes...
-        https://www.vogella.com/tutorials/AndroidCustomViews/article.html#exercise-create-a-compound-view
-
-        Ex:
-        TypedArray a = context.obtainStyledAttributes(attrs,
-        R.styleable.ColorOptionsView, 0, 0);
-        String titleText = a.getString(R.styleable.ColorOptionsView_titleText);
-        @SuppressWarnings("ResourceAsColor")
-        int valueColor = a.getColor(R.styleable.ColorOptionsView_valueColor,
-                android.R.color.holo_blue_light);
-        a.recycle();
-         */
-
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NumberSliderView, 0, 0);
         // read attributes
-        minValue = 0;
-        maxValue = 255;
-        lastValue = 0;
-        labelValue = "Parameter1:";
+        minValue = a.getInt(R.styleable.NumberSliderView_minValue, 0);
+        maxValue = a.getInt(R.styleable.NumberSliderView_maxValue, 100);
+        lastValue = a.getInt(R.styleable.NumberSliderView_initialValue, 0);
+        labelValue = a.getString(R.styleable.NumberSliderView_sliderLabel);
+        a.recycle();
+
+        if (maxValue <= minValue) {
+            maxValue = minValue + 1;
+        }
+
+        if (lastValue < minValue) {
+            lastValue = minValue;
+        }
+
+        if (lastValue > maxValue) {
+            lastValue = maxValue;
+        }
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

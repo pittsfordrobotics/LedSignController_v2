@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.AdvancedFragment">
@@ -13,7 +14,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="10dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            custom:minValue="0"
+            custom:maxValue="255"
+            custom:initialValue="0">
 
             <TextView
                 android:id="@+id/configStatus"
@@ -23,8 +27,18 @@
                 android:text="Not connected." />
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                custom:sliderLabel="Parameter 1:"
+                custom:initialValue="25"
                 android:layout_width="match_parent"
-                android:layout_height="50dp" />
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                custom:sliderLabel="Parameter 2:"
+                custom:minValue="10"
+                custom:initialValue="15"
+                custom:maxValue="50"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
 
             <TableLayout
                 android:id="@+id/advConfigTable"

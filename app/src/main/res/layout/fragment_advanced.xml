@@ -22,6 +22,10 @@
                 android:textAlignment="center"
                 android:text="Not connected." />
 
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+
             <TableLayout
                 android:id="@+id/advConfigTable"
                 android:layout_width="match_parent"

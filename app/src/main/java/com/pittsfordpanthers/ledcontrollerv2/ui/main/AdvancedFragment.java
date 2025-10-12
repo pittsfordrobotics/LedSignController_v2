@@ -3,10 +3,14 @@ package com.pittsfordpanthers.ledcontrollerv2.ui.main;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.pittsfordpanthers.ledcontrollerv2.R;
 import com.pittsfordpanthers.ledcontrollerv2.ViewModel;
@@ -66,10 +70,34 @@ public class AdvancedFragment extends AdvancedView {
     }
 
     private void initialize() {
+        TextView dp = view.findViewById(R.id.txtDisplayPattern);
+        dp.setOnEditorActionListener(this::setByteBounds);
 
+        TableRowFragment.setValueDisplay(true);
+        TableRowFragment t1 = TableRowFragment.newInstance("Parameter 1");
+        TableRowFragment t2 = TableRowFragment.newInstance("Parameter 2");
+        // Dynamically add the parameter sliders
+        FragmentManager fm = getParentFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.advConfigTable, t1);
+        ft.add(R.id.advConfigTable, t2);
+        ft.commit();
     }
 
     private void refreshDisplay() {
 
+    }
+
+    private boolean setByteBounds(TextView textView, int i, KeyEvent keyEvent) {
+        boolean handled = false;
+        Integer value = Integer.parseInt(textView.getText().toString());
+        if (value < 0) {
+            value = 0;
+        }
+        if (value > 255) {
+            value = 255;
+        }
+        textView.setText(String.valueOf(value));
+        return handled;
     }
 }

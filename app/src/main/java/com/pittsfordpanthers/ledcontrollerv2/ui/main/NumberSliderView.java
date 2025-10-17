@@ -16,6 +16,8 @@ import android.widget.TextView;
 import com.pittsfordpanthers.ledcontrollerv2.R;
 
 public class NumberSliderView extends LinearLayout {
+    // Example: https://www.vogella.com/tutorials/AndroidCustomViews/article.html#exercise-create-a-compound-view
+
     public interface OnValueChangeListener {
         public void onValueChange(NumberSliderView numberSliderView, int i, boolean b);
     }

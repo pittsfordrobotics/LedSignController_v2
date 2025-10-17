@@ -16,29 +16,15 @@
             android:layout_margin="10dp"
             android:orientation="vertical"
             custom:minValue="0"
-            custom:maxValue="255"
+            custom:maxValue="100"
             custom:initialValue="0">
 
             <TextView
-                android:id="@+id/configStatus"
+                android:id="@+id/connectionStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:text="Not connected." />
-
-            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
-                custom:sliderLabel="Parameter 1:"
-                custom:initialValue="25"
-                android:layout_width="match_parent"
-                android:layout_height="30dp" />
-
-            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
-                custom:sliderLabel="Parameter 2:"
-                custom:minValue="10"
-                custom:initialValue="15"
-                custom:maxValue="50"
-                android:layout_width="match_parent"
-                android:layout_height="30dp" />
 
             <TableLayout
                 android:id="@+id/advConfigTable"
@@ -191,12 +177,58 @@
                         android:layout_margin="5dp"
                         android:background="#E616A1"
                         />
-
                 </TableRow>
 
-
-
             </TableLayout>
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/brightness"
+                custom:sliderLabel="Brightness:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/speed"
+                custom:sliderLabel="Speed:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/parameter1"
+                custom:sliderLabel="Parameter 1:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/parameter2"
+                custom:sliderLabel="Parameter 2:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/parameter3"
+                custom:sliderLabel="Parameter 3:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/parameter4"
+                custom:sliderLabel="Parameter 4:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/parameter5"
+                custom:sliderLabel="Parameter 5:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
+            <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
+                android:id="@+id/parameter6"
+                custom:sliderLabel="Parameter 6:"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -235,104 +267,12 @@
                 android:layout_marginBottom="10dp"
                 android:background="?android:attr/listDivider" />
 
-            <LinearLayout
-                android:id="@+id/colorChooser"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:textAlignment="center"
+                android:text="Custom presets" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_gravity="center_vertical"
-                        android:text="Preset colors:" />
-
-                    <Button
-                        android:id="@+id/presetColor1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_weight="1"
-                        android:text="Pink"
-                        android:backgroundTint="#E616A1"
-                        android:tag="#E616A1"
-                        />
-                    <Button
-                        android:id="@+id/presetColor3"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_weight="1"
-                        android:text="Blue"
-                        android:backgroundTint="#0000FF"
-                        android:tag="#0000FF"
-                        />
-                    <Button
-                        android:id="@+id/presetColor2"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_weight="1"
-                        android:text="Red"
-                        android:backgroundTint="#FF0000"
-                        android:tag="#FF0000"
-                        />
-
-                </LinearLayout>
-
-                <TableLayout
-                    android:id="@+id/colorParameterTable"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:stretchColumns="1">
-
-                </TableLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_gravity="center"
-                        android:text="Preview:"/>
-
-                    <View
-                        android:id="@+id/colorPreview"
-                        android:layout_width="50dp"
-                        android:layout_height="25dp"
-                        android:layout_margin="5dp"
-                        android:background="#FFFFFF"
-                        android:layout_gravity="center"
-                        />
-
-                    <Button
-                        android:id="@+id/cancelColor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:text="Cancel" />
-
-                    <Button
-                        android:id="@+id/selectColor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:text="Select" />
-
-                </LinearLayout>
-            </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -374,7 +314,48 @@
                     android:layout_weight="1"
                     android:text="5" />
             </LinearLayout>
-        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/preset6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:text="6" />
+                <Button
+                    android:id="@+id/preset7"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:text="7" />
+                <Button
+                    android:id="@+id/preset8"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:text="8" />
+                <Button
+                    android:id="@+id/preset9"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:text="9" />
+                <Button
+                    android:id="@+id/preset10"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:text="10" />
+            </LinearLayout>        </LinearLayout>
     </ScrollView>
 
 </FrameLayout>

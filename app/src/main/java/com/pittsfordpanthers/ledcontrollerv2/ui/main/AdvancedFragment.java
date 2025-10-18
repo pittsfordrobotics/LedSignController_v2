@@ -3,6 +3,7 @@ package com.pittsfordpanthers.ledcontrollerv2.ui.main;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
@@ -282,6 +283,22 @@ public class AdvancedFragment extends AdvancedView {
     }
 
     private void onUpdate(View v) {
+        statusView.setText("Updating device...");
+        disableAll();
+        connectedDevice.setBrightness((byte) brightnessSlider.getValue());
+        connectedDevice.setSpeed((byte) speedSlider.getValue());
+        PatternData patternData = new PatternData();
+        patternData.setColorPatternId((byte) Integer.parseInt(colorPatternView.getText().toString()));
+        patternData.setDisplayPatternId((byte) Integer.parseInt(displayPatternView.getText().toString()));
+        for (int i = 0; i < colorBars.length; i++) {
+            patternData.setColorValue(i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
+        }
 
+        for (int i = 0; i < parameterSliders.length; i++) {
+            patternData.setParameterValue(i, (byte) parameterSliders[i].getValue());
+        }
+
+        connectedDevice.setPatternData(patternData);
+        viewModel.updateConfiguration(connectedDevice);
     }
 }

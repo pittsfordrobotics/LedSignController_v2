@@ -95,6 +95,7 @@ public class ViewModel {
         logMessage("Disconnected.");
         scanView.setDisconnectedState();
         configurationView.setDisconnectedState();
+        advancedView.setDisconnectedState();
     }
 
     public void logMessage(String message) {
@@ -133,11 +134,13 @@ public class ViewModel {
 
         scanView.setConnectedDevice(device);
         configurationView.setConnectedDevice(device);
+        advancedView.setConnectedDevice(device);
     }
 
     private void onConnectionFailed(BleDevice device) {
         logMessage("Failed to connect to device: " + device.getName());
         scanView.setConnectionFailed();
         configurationView.setDisconnectedState();
+        advancedView.setDisconnectedState();
     }
 }

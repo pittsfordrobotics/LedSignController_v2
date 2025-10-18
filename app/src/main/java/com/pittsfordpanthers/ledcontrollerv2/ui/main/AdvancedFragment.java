@@ -2,6 +2,7 @@ package com.pittsfordpanthers.ledcontrollerv2.ui.main;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -22,6 +23,10 @@ import com.pittsfordpanthers.ledcontrollerv2.ViewModel;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.ConnectedDevice;
 import com.pittsfordpanthers.ledcontrollerv2.signdata.PatternData;
 import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
+import com.skydoves.colorpickerview.ColorEnvelope;
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.ColorPickerView;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -106,6 +111,10 @@ public class AdvancedFragment extends AdvancedView {
                 view.findViewById(R.id.color4)
         };
 
+        for (View v : colorBars) {
+            v.setOnClickListener(this::onColorTapped);
+        }
+
         parameterSliders = new NumberSliderView[] {
                 view.findViewById(R.id.parameter1),
                 view.findViewById(R.id.parameter2),
@@ -186,6 +195,36 @@ public class AdvancedFragment extends AdvancedView {
         for (View v : colorBars) {
             v.setEnabled(true);
         }
+    }
+
+    private void onColorTapped(View sourceColorBar) {
+        ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
+        int initialColor = drawable.getColor();
+
+        ColorPickerDialog.Builder builder = new ColorPickerDialog.Builder(getContext())
+                .setTitle("ColorPicker")
+                .setPreferenceName("ColorPickerDialog")
+                .setPositiveButton("OK",
+                        new ColorEnvelopeListener() {
+                            @Override
+                            public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                                //setLayoutColor(envelope);
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                .attachAlphaSlideBar(false) // the default value is true.
+                .attachBrightnessSlideBar(true)  // the default value is true.
+                .setBottomSpace(12); // set a bottom space between the last slidebar and buttons.
+
+        ColorPickerView cpView = builder.getColorPickerView();
+        cpView.setInitialColor(initialColor);
+        builder.show();
     }
 
     private boolean setByteBounds(TextView textView, int i, KeyEvent keyEvent) {

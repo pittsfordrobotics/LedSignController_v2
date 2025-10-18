@@ -2,6 +2,7 @@ package com.pittsfordpanthers.ledcontrollerv2.ui.main;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -38,6 +39,7 @@ import java.util.List;
  * Use the {@link ConfigurationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+@SuppressLint("SetTextI18n")
 public class ConfigurationFragment extends ConfigurationView {
 
     private View view;

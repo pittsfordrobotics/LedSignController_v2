@@ -7,8 +7,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,8 +19,7 @@ import android.widget.Toast;
 import com.pittsfordpanthers.ledcontrollerv2.R;
 import com.pittsfordpanthers.ledcontrollerv2.ViewModel;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.ConnectedDevice;
-import com.pittsfordpanthers.ledcontrollerv2.signdata.ColorPatternOptionData;
-import com.pittsfordpanthers.ledcontrollerv2.signdata.DisplayPatternOptionData;
+import com.pittsfordpanthers.ledcontrollerv2.signdata.PatternData;
 import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
 
 /**
@@ -35,11 +32,10 @@ public class AdvancedFragment extends AdvancedView {
     private ViewModel viewModel = null;
     private View view;
     private ConnectedDevice connectedDevice = null;
-
     private NumberSliderView[] parameterSliders;
-
     private NumberSliderView brightnessSlider;
     private NumberSliderView speedSlider;
+    private View[] colorBars;
     private TextView colorPatternView;
     private TextView displayPatternView;
     private TextView statusView;
@@ -85,19 +81,29 @@ public class AdvancedFragment extends AdvancedView {
 
     @Override
     public void setDisconnectedState() {
-
+        connectedDevice = null;
+        refreshDisplay();
     }
 
     private void initialize() {
         statusView = view.findViewById(R.id.connectionStatus);
         reloadButton = view.findViewById(R.id.btnReload);
+        reloadButton.setOnClickListener(this::onReload);
         updateButton = view.findViewById(R.id.btnUpdate);
+        updateButton.setOnClickListener(this::onUpdate);
         displayPatternView = view.findViewById(R.id.txtDisplayPattern);
         displayPatternView.setOnEditorActionListener(this::setByteBounds);
         colorPatternView = view.findViewById(R.id.txtColorPattern);
         colorPatternView.setOnEditorActionListener(this::setByteBounds);
         brightnessSlider = view.findViewById(R.id.brightness);
         speedSlider = view.findViewById(R.id.speed);
+
+        colorBars = new View[] {
+                view.findViewById(R.id.color1),
+                view.findViewById(R.id.color2),
+                view.findViewById(R.id.color3),
+                view.findViewById(R.id.color4)
+        };
 
         parameterSliders = new NumberSliderView[] {
                 view.findViewById(R.id.parameter1),
@@ -143,10 +149,42 @@ public class AdvancedFragment extends AdvancedView {
 
     private void setDisplayForDisconnectedDevice() {
         statusView.setText("Not connected.");
+        disableAll();
     }
 
     private void setDisplayForConnectedDevice() {
         statusView.setText("Connected to: " + connectedDevice.getName());
+
+        // Populate settings
+        brightnessSlider.setValue(connectedDevice.getBrightness());
+        speedSlider.setValue(connectedDevice.getSpeed());
+        PatternData patternData = connectedDevice.getCurrentPatternData();
+        colorPatternView.setText(String.valueOf(patternData.getColorPatternId()));
+        displayPatternView.setText(String.valueOf(patternData.getDisplayPatternId()));
+
+        for (int i = 0; i < parameterSliders.length; i++) {
+            parameterSliders[i].setValue(patternData.getParameterValue(i));
+        }
+
+        for (int i = 0; i < colorBars.length; i++) {
+            colorBars[i].setBackgroundColor(patternData.getColorValue(i));
+        }
+
+        // Enable UI elements
+        reloadButton.setEnabled(true);
+        updateButton.setEnabled(true);
+        displayPatternView.setEnabled(true);
+        colorPatternView.setEnabled(true);
+        brightnessSlider.setEnabled(true);
+        speedSlider.setEnabled(true);
+
+        for (NumberSliderView p : parameterSliders) {
+            p.setEnabled(true);
+        }
+
+        for (View v : colorBars) {
+            v.setEnabled(true);
+        }
     }
 
     private boolean setByteBounds(TextView textView, int i, KeyEvent keyEvent) {
@@ -159,6 +197,7 @@ public class AdvancedFragment extends AdvancedView {
             value = 255;
         }
         textView.setText(String.valueOf(value));
+        textView.clearFocus();
         return handled;
     }
 
@@ -190,9 +229,10 @@ public class AdvancedFragment extends AdvancedView {
             for (int i = 0; i < parameterSliders.length; i++) {
                 parameterSliders[i].setValue(getPreferenceIntValue("Adv_Param" + buttonNumber + "_" + i));
             }
-//            for (int i = 0; i < colorBars.length; i++) {
-//                colorBars[i].setBackgroundColor(getPreferenceIntValue("Adv_Color" + buttonNumber + "_" + i));
-//            }
+
+            for (int i = 0; i < colorBars.length; i++) {
+                colorBars[i].setBackgroundColor(getPreferenceIntValue("Adv_Color" + buttonNumber + "_" + i));
+            }
         };
     }
 
@@ -207,13 +247,41 @@ public class AdvancedFragment extends AdvancedView {
             for (int i = 0; i < parameterSliders.length; i++) {
                 editor.putInt("Adv_Param" + buttonNumber + "_" + i, parameterSliders[i].getValue());
             }
-//            for (int i = 0; i < colorBars.length; i++) {
-//                editor.putInt("Adv_Color" + buttonNumber + "_" + i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
-//            }
+
+            for (int i = 0; i < colorBars.length; i++) {
+                editor.putInt("Adv_Color" + buttonNumber + "_" + i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
+            }
+
             editor.apply();
             Toast.makeText(getContext(), "Values set for preset number " + (buttonNumber + 1) + ".", Toast.LENGTH_SHORT).show();
             return true;
         };
     }
 
+    private void disableAll() {
+        reloadButton.setEnabled(false);
+        updateButton.setEnabled(false);
+        displayPatternView.setEnabled(false);
+        colorPatternView.setEnabled(false);
+        brightnessSlider.setEnabled(false);
+        speedSlider.setEnabled(false);
+
+        for (NumberSliderView p : parameterSliders) {
+            p.setEnabled(false);
+        }
+
+        for (View v : colorBars) {
+            v.setEnabled(false);
+        }
+    }
+
+    private void onReload(View v) {
+        statusView.setText("Refreshing device...");
+        disableAll();
+        viewModel.reloadConfiguration(connectedDevice);
+    }
+
+    private void onUpdate(View v) {
+
+    }
 }

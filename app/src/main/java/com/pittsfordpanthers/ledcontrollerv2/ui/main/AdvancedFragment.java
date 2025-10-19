@@ -231,6 +231,7 @@ public class AdvancedFragment extends AdvancedView {
 
         for (int i = 0; i < colorBars.length; i++) {
             colorBars[i].setBackgroundColor(patternData.getColorValue(i));
+            colorValues[i].setText(colorIntToString(patternData.getColorValue(i)));
         }
 
         // Enable UI elements
@@ -250,6 +251,20 @@ public class AdvancedFragment extends AdvancedView {
         }
     }
 
+    private String colorIntToString(int color) {
+        String colorString = Integer.toHexString(color);
+
+        // String of the leading FF.
+        // Sanity check - it should always be 8 characters long.
+        if (colorString.length() == 8) {
+            colorString = colorString.substring(2);
+        } else {
+            colorString = "0";
+        }
+
+        return colorString;
+    }
+
     private void onColorTapped(View sourceColorBar) {
         int barId = (int)sourceColorBar.getTag();
         ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
@@ -262,6 +277,8 @@ public class AdvancedFragment extends AdvancedView {
                             @Override
                             public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
                                 sourceColorBar.setBackgroundColor(envelope.getColor());
+                                String colorString = colorIntToString(envelope.getColor());
+                                colorValues[barId].setText(colorString);
                             }
                         })
                 .setNegativeButton("Cancel",

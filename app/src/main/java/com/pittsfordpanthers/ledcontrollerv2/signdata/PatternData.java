@@ -93,7 +93,8 @@ public class PatternData {
             return 0;
         }
 
-        return colorValues[colorIndex];
+        int color = colorValues[colorIndex];
+        return Color.argb(255, Color.red(color), Color.green(color), Color.blue(color));
     }
 
     public void setColorValue(int colorIndex, int value) {

@@ -154,8 +154,6 @@
                     <EditText
                         android:id="@+id/colorCode2"
                         android:textAllCaps="true"
-                        android:digits="0123456789ABCDEF"
-                        android:inputType="textCapCharacters"
                         android:layout_column="2"
                         android:layout_width="80dp"
                         android:layout_height="wrap_content"
@@ -164,6 +162,8 @@
                         android:paddingEnd="5dp"
                         android:paddingStart="5dp"
                         android:maxLength="6"
+                        android:selectAllOnFocus="true"
+                        android:imeOptions="actionDone"
                         android:text="ABABAB" />
 
                 </TableRow>
@@ -192,8 +192,6 @@
                     <EditText
                         android:id="@+id/colorCode3"
                         android:textAllCaps="true"
-                        android:digits="0123456789ABCDEF"
-                        android:inputType="textCapCharacters"
                         android:layout_column="2"
                         android:layout_width="80dp"
                         android:layout_height="wrap_content"
@@ -202,7 +200,9 @@
                         android:paddingEnd="5dp"
                         android:paddingStart="5dp"
                         android:maxLength="6"
-                        android:text="ABCABC" />
+                        android:selectAllOnFocus="true"
+                        android:imeOptions="actionDone"
+                        android:text="ABABAB" />
 
                 </TableRow>
 
@@ -230,8 +230,6 @@
                     <EditText
                         android:id="@+id/colorCode4"
                         android:textAllCaps="true"
-                        android:digits="0123456789ABCDEF"
-                        android:inputType="textCapCharacters"
                         android:layout_column="2"
                         android:layout_width="80dp"
                         android:layout_height="wrap_content"
@@ -240,7 +238,9 @@
                         android:paddingEnd="5dp"
                         android:paddingStart="5dp"
                         android:maxLength="6"
-                        android:text="ABCABC" />
+                        android:selectAllOnFocus="true"
+                        android:imeOptions="actionDone"
+                        android:text="ABABAB" />
                 </TableRow>
             </TableLayout>
 

@@ -31,7 +31,7 @@ public class NumberSliderView extends LinearLayout {
 
     private int lastValue = 0;
     private String labelValue;
-    private boolean enabled = true;
+    private boolean enabled = false;
     private int visibility;
     private int minValue;
     private int maxValue;
@@ -114,6 +114,7 @@ public class NumberSliderView extends LinearLayout {
 
         seekBar.setEnabled(enabled);
         seekBar.setProgress(lastValue);
+        textBox.setEnabled(enabled);
         textBox.setText(String.valueOf(lastValue));
         textBox.clearFocus();
         parentLayout.setVisibility(visibility);

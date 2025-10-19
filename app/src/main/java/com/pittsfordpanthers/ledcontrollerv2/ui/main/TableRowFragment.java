@@ -130,6 +130,7 @@ public class TableRowFragment extends Fragment {
         }
 
         sbParameterValue.setEnabled(enabled);
+        txtParameterValue.setEnabled(enabled);
         rowContainer.setVisibility(visibility);
         sbParameterValue.setProgress(lastSetValue);
         txtParameterValue.clearFocus();

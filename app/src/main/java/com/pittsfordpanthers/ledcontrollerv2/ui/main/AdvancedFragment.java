@@ -249,6 +249,10 @@ public class AdvancedFragment extends AdvancedView {
         for (View v : colorBars) {
             v.setEnabled(true);
         }
+
+        for (View v : colorValues) {
+            v.setEnabled(true);
+        }
     }
 
     private String colorIntToString(int color) {
@@ -405,9 +409,13 @@ public class AdvancedFragment extends AdvancedView {
             p.setEnabled(false);
         }
 
-//        for (View v : colorBars) {
-//            v.setEnabled(false);
-//        }
+        for (View v : colorBars) {
+            v.setEnabled(false);
+        }
+
+        for (View v : colorValues) {
+            v.setEnabled(false);
+        }
     }
 
     private void onReload(View v) {

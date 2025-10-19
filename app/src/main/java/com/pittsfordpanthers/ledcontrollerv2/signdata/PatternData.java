@@ -56,6 +56,19 @@ public class PatternData {
         return binaryData;
     }
 
+    public String toBinaryDataAsString() {
+        byte[] data = toBinaryData();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (byte b: data) {
+            sb.append(Integer.toString(Byte.toUnsignedInt(b), 16));
+            sb.append(", ");
+        }
+
+        sb.replace(sb.length()-2, sb.length()-1, "]");
+        return sb.toString().toUpperCase();
+    }
+
     public byte getColorPatternId() {
         return colorPatternId;
     }

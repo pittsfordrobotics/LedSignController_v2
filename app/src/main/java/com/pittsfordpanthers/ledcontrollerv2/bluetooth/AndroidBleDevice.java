@@ -98,8 +98,11 @@ public class AndroidBleDevice extends ConnectedDevice {
     public void updateCharacteristics(Consumer<ConnectedDevice> updateCompletedCallback) {
         logger.accept("Updating characteristics.");
         btProvider.queueOperation(writeOperations.get(BleConstants.BrightnessCharacteristicId).withValue(new byte[] { getBrightness() }));
+        logger.accept("Brightness: " + String.valueOf(Byte.toUnsignedInt(getBrightness())));
         btProvider.queueOperation(writeOperations.get(BleConstants.SpeedCharacteristicId).withValue(new byte[] { getSpeed() }));
+        logger.accept("Speed: " + String.valueOf(Byte.toUnsignedInt(getSpeed())));
         btProvider.queueOperation(writeOperations.get(BleConstants.PatternDataCharacteristicId).withValue(getCurrentPatternData().toBinaryData()));
+        logger.accept("PatternData: " + getCurrentPatternData().toBinaryDataAsString());
 
         if (syncCharacteristic != null) {
             syncData++;

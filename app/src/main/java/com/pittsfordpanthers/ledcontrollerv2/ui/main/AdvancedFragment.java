@@ -203,11 +203,13 @@ public class AdvancedFragment extends AdvancedView {
             return;
         }
 
-        if (connectedDevice == null) {
-            setDisplayForDisconnectedDevice();
-        } else {
-            setDisplayForConnectedDevice();
-        }
+        getActivity().runOnUiThread(() -> {
+            if (connectedDevice == null) {
+                setDisplayForDisconnectedDevice();
+            } else {
+                setDisplayForConnectedDevice();
+            }
+        });
     }
 
     private void setDisplayForDisconnectedDevice() {

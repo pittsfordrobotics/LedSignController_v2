@@ -14,10 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="10dp"
-            android:orientation="vertical"
-            custom:minValue="0"
-            custom:maxValue="100"
-            custom:initialValue="0">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/connectionStatus"
@@ -248,49 +245,73 @@
                 android:id="@+id/brightness"
                 custom:sliderLabel="Brightness:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
                 android:id="@+id/speed"
                 custom:sliderLabel="Speed:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
                 android:id="@+id/parameter1"
                 custom:sliderLabel="Parameter 1:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
                 android:id="@+id/parameter2"
                 custom:sliderLabel="Parameter 2:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
                 android:id="@+id/parameter3"
                 custom:sliderLabel="Parameter 3:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
                 android:id="@+id/parameter4"
                 custom:sliderLabel="Parameter 4:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
                 android:id="@+id/parameter5"
                 custom:sliderLabel="Parameter 5:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView
                 android:id="@+id/parameter6"
                 custom:sliderLabel="Parameter 6:"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                custom:minValue="0"
+                custom:maxValue="255"
+                custom:initialValue="0"/>
 
 
             <LinearLayout

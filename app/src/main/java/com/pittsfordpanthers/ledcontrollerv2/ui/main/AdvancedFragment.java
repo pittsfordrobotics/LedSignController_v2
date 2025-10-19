@@ -219,14 +219,14 @@ public class AdvancedFragment extends AdvancedView {
         statusView.setText("Connected to: " + connectedDevice.getName());
 
         // Populate settings
-        brightnessSlider.setValue(connectedDevice.getBrightness());
-        speedSlider.setValue(connectedDevice.getSpeed());
+        brightnessSlider.setValue(Byte.toUnsignedInt(connectedDevice.getBrightness()));
+        speedSlider.setValue(Byte.toUnsignedInt(connectedDevice.getSpeed()));
         PatternData patternData = connectedDevice.getCurrentPatternData();
-        colorPatternView.setText(String.valueOf(patternData.getColorPatternId()));
-        displayPatternView.setText(String.valueOf(patternData.getDisplayPatternId()));
+        colorPatternView.setText(String.valueOf(Byte.toUnsignedInt(patternData.getColorPatternId())));
+        displayPatternView.setText(String.valueOf(Byte.toUnsignedInt(patternData.getDisplayPatternId())));
 
         for (int i = 0; i < parameterSliders.length; i++) {
-            parameterSliders[i].setValue(patternData.getParameterValue(i));
+            parameterSliders[i].setValue(Byte.toUnsignedInt(patternData.getParameterValue(i)));
         }
 
         for (int i = 0; i < colorBars.length; i++) {

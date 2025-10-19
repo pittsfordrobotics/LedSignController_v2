@@ -269,6 +269,11 @@ public class AdvancedFragment extends AdvancedView {
         int barId = (int)sourceColorBar.getTag();
         ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
         int initialColor = drawable.getColor();
+        // odd bug: if the color is black, the color picker doesn't send a new color
+        // unless the brightness slider has been moved
+        if (initialColor == Color.BLACK) {
+            initialColor = Color.argb(255, 255, 255, 255);
+        }
 
         ColorPickerDialog.Builder builder = new ColorPickerDialog.Builder(getContext())
                 .setTitle("Color " + (barId + 1))
@@ -317,14 +322,14 @@ public class AdvancedFragment extends AdvancedView {
         //  - Add "FF" to the front to indicate the alpha value of the color.
         CharSequence inputValue = textView.getText();
         StringBuilder sb = new StringBuilder();
-        sb.append("FF");
         for (int c = 6; c > inputValue.length(); c--) {
             sb.append("0");
         }
 
         sb.append(inputValue);
-
-        int newColor = Integer.parseUnsignedInt(sb.toString(), 16);
+        textView.setText(sb.toString());
+        String fullColorString = "FF" + sb.toString();
+        int newColor = Integer.parseUnsignedInt(fullColorString, 16);
         int barId = (int)textView.getTag();
         colorBars[barId].setBackgroundColor(newColor);
         textView.clearFocus();
@@ -400,9 +405,9 @@ public class AdvancedFragment extends AdvancedView {
             p.setEnabled(false);
         }
 
-        for (View v : colorBars) {
-            v.setEnabled(false);
-        }
+//        for (View v : colorBars) {
+//            v.setEnabled(false);
+//        }
     }
 
     private void onReload(View v) {

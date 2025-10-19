@@ -79,6 +79,7 @@ public class AndroidBleDevice extends ConnectedDevice {
         // Enqueue all the "read" operations,
         // ending with a NullOperation to invoke the final callback.
         logger.accept("Refreshing all characteristics.");
+        setPatternOptionData(new PatternOptionData());
         btProvider.queueOperation(readOperations.get(BleConstants.BrightnessCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.SpeedCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.ColorPatternListCharacteristicId));

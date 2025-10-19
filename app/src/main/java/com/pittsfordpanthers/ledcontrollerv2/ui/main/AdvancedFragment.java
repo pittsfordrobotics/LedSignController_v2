@@ -10,11 +10,15 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.text.InputFilter;
+import android.text.InputType;
+import android.text.Spanned;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +30,8 @@ import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
 import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.ColorPickerView;
+import com.skydoves.colorpickerview.flag.BubbleFlag;
+import com.skydoves.colorpickerview.flag.FlagMode;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
 /**
@@ -42,11 +48,43 @@ public class AdvancedFragment extends AdvancedView {
     private NumberSliderView brightnessSlider;
     private NumberSliderView speedSlider;
     private View[] colorBars;
+    private EditText[] colorValues;
     private TextView colorPatternView;
     private TextView displayPatternView;
     private TextView statusView;
     private Button reloadButton;
     private Button updateButton;
+
+    private final InputFilter hexInputFilter = new InputFilter() {
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = start; i < end; i++) {
+                if (Character.isDigit(source.charAt(i))
+                        || source.charAt(i)=='A'
+                        || source.charAt(i)=='B'
+                        || source.charAt(i)=='C'
+                        || source.charAt(i)=='D'
+                        || source.charAt(i)=='E'
+                        || source.charAt(i)=='F'
+                        || source.charAt(i)=='a'
+                        || source.charAt(i)=='b'
+                        || source.charAt(i)=='c'
+                        || source.charAt(i)=='d'
+                        || source.charAt(i)=='e'
+                        || source.charAt(i)=='f'
+                ) {
+                    sb.append(source.charAt(i));
+                    if (sb.length() >= 6) {
+                        break;
+                    }
+                }
+            }
+            return sb.toString().toUpperCase();
+        }
+    };
 
     public AdvancedFragment() {
         // Required empty public constructor
@@ -111,8 +149,23 @@ public class AdvancedFragment extends AdvancedView {
                 view.findViewById(R.id.color4)
         };
 
-        for (View v : colorBars) {
-            v.setOnClickListener(this::onColorTapped);
+        for (int i = 0; i < colorBars.length; i++) {
+            colorBars[i].setTag(i);
+            colorBars[i].setOnClickListener(this::onColorTapped);
+        }
+
+        colorValues = new EditText[] {
+                view.findViewById(R.id.colorCode1),
+                view.findViewById(R.id.colorCode2),
+                view.findViewById(R.id.colorCode3),
+                view.findViewById(R.id.colorCode4)
+        };
+
+        for (int i = 0; i < colorValues.length; i++) {
+            colorValues[i].setFilters(new InputFilter[]{hexInputFilter});
+            colorValues[i].setTag(i);
+            colorValues[i].setOnEditorActionListener(this::setColorValue);
+            colorValues[i].setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         }
 
         parameterSliders = new NumberSliderView[] {
@@ -198,17 +251,17 @@ public class AdvancedFragment extends AdvancedView {
     }
 
     private void onColorTapped(View sourceColorBar) {
+        int barId = (int)sourceColorBar.getTag();
         ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
         int initialColor = drawable.getColor();
 
         ColorPickerDialog.Builder builder = new ColorPickerDialog.Builder(getContext())
-                .setTitle("ColorPicker")
-                .setPreferenceName("ColorPickerDialog")
+                .setTitle("Color " + (barId + 1))
                 .setPositiveButton("OK",
                         new ColorEnvelopeListener() {
                             @Override
                             public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
-                                //setLayoutColor(envelope);
+                                sourceColorBar.setBackgroundColor(envelope.getColor());
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -220,7 +273,7 @@ public class AdvancedFragment extends AdvancedView {
                         })
                 .attachAlphaSlideBar(false) // the default value is true.
                 .attachBrightnessSlideBar(true)  // the default value is true.
-                .setBottomSpace(12); // set a bottom space between the last slidebar and buttons.
+                .setBottomSpace(10); // set a bottom space between the last slidebar and buttons.
 
         ColorPickerView cpView = builder.getColorPickerView();
         cpView.setInitialColor(initialColor);
@@ -239,6 +292,26 @@ public class AdvancedFragment extends AdvancedView {
         textView.setText(String.valueOf(value));
         textView.clearFocus();
         return handled;
+    }
+
+    private boolean setColorValue(TextView textView, int i, KeyEvent keyEvent) {
+        // Format the input string:
+        //  - if it's less than 6 characters, pad zeros in front.
+        //  - Add "FF" to the front to indicate the alpha value of the color.
+        CharSequence inputValue = textView.getText();
+        StringBuilder sb = new StringBuilder();
+        sb.append("FF");
+        for (int c = 6; c > inputValue.length(); c--) {
+            sb.append("0");
+        }
+
+        sb.append(inputValue);
+
+        int newColor = Integer.parseUnsignedInt(sb.toString(), 16);
+        int barId = (int)textView.getTag();
+        colorBars[barId].setBackgroundColor(newColor);
+        textView.clearFocus();
+        return false;
     }
 
     private int getPreferenceIntValue(String prefName) {

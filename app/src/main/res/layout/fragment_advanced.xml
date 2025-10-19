@@ -109,8 +109,24 @@
                         android:layout_width="50dp"
                         android:layout_height="20dp"
                         android:layout_margin="5dp"
+                        android:layout_gravity="center"
                         android:background="#E616A1"
                         />
+
+                    <EditText
+                        android:id="@+id/colorCode1"
+                        android:textAllCaps="true"
+                        android:layout_column="2"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="15sp"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"
+                        android:maxLength="6"
+                        android:selectAllOnFocus="true"
+                        android:imeOptions="actionDone"
+                        android:text="ABCABC" />
 
                 </TableRow>
 
@@ -131,8 +147,24 @@
                         android:layout_width="50dp"
                         android:layout_height="20dp"
                         android:layout_margin="5dp"
+                        android:layout_gravity="center"
                         android:background="#E616A1"
                         />
+
+                    <EditText
+                        android:id="@+id/colorCode2"
+                        android:textAllCaps="true"
+                        android:digits="0123456789ABCDEF"
+                        android:inputType="textCapCharacters"
+                        android:layout_column="2"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="15sp"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"
+                        android:maxLength="6"
+                        android:text="ABABAB" />
 
                 </TableRow>
 
@@ -153,8 +185,24 @@
                         android:layout_width="50dp"
                         android:layout_height="20dp"
                         android:layout_margin="5dp"
+                        android:layout_gravity="center"
                         android:background="#E616A1"
                         />
+
+                    <EditText
+                        android:id="@+id/colorCode3"
+                        android:textAllCaps="true"
+                        android:digits="0123456789ABCDEF"
+                        android:inputType="textCapCharacters"
+                        android:layout_column="2"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="15sp"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"
+                        android:maxLength="6"
+                        android:text="ABCABC" />
 
                 </TableRow>
 
@@ -175,10 +223,25 @@
                         android:layout_width="50dp"
                         android:layout_height="20dp"
                         android:layout_margin="5dp"
+                        android:layout_gravity="center"
                         android:background="#E616A1"
                         />
-                </TableRow>
 
+                    <EditText
+                        android:id="@+id/colorCode4"
+                        android:textAllCaps="true"
+                        android:digits="0123456789ABCDEF"
+                        android:inputType="textCapCharacters"
+                        android:layout_column="2"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="15sp"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"
+                        android:maxLength="6"
+                        android:text="ABCABC" />
+                </TableRow>
             </TableLayout>
 
             <com.pittsfordpanthers.ledcontrollerv2.ui.main.NumberSliderView

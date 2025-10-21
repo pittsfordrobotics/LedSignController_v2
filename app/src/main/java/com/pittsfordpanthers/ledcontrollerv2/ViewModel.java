@@ -55,8 +55,8 @@ public class ViewModel {
         uiViews = new Fragment[] {
                 scanView,
                 configurationView,
-                debugView,
-                advancedView
+                advancedView,
+                debugView
         };
     }
 

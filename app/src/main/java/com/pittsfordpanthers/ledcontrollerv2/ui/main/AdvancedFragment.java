@@ -1,6 +1,8 @@
 package com.pittsfordpanthers.ledcontrollerv2.ui.main;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -17,14 +19,21 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pittsfordpanthers.ledcontrollerv2.R;
 import com.pittsfordpanthers.ledcontrollerv2.ViewModel;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.ConnectedDevice;
+import com.pittsfordpanthers.ledcontrollerv2.signdata.ColorPatternOptionData;
+import com.pittsfordpanthers.ledcontrollerv2.signdata.DisplayPatternOptionData;
 import com.pittsfordpanthers.ledcontrollerv2.signdata.PatternData;
 import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
 import com.skydoves.colorpickerview.ColorEnvelope;
@@ -34,6 +43,8 @@ import com.skydoves.colorpickerview.flag.BubbleFlag;
 import com.skydoves.colorpickerview.flag.FlagMode;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
+import java.util.List;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AdvancedFragment#newInstance} factory method to
@@ -41,6 +52,7 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
  */
 public class AdvancedFragment extends AdvancedView {
 
+    private boolean isAdvancedMode = false;
     private ViewModel viewModel = null;
     private View view;
     private ConnectedDevice connectedDevice = null;
@@ -54,6 +66,8 @@ public class AdvancedFragment extends AdvancedView {
     private TextView statusView;
     private Button reloadButton;
     private Button updateButton;
+    private Spinner displayPatternList;
+    private Spinner colorPatternList;
 
     private final InputFilter hexInputFilter = new InputFilter() {
         @Override
@@ -136,11 +150,19 @@ public class AdvancedFragment extends AdvancedView {
         updateButton = view.findViewById(R.id.btnUpdate);
         updateButton.setOnClickListener(this::onUpdate);
         displayPatternView = view.findViewById(R.id.txtDisplayPattern);
-        displayPatternView.setOnEditorActionListener(this::setByteBounds);
+        displayPatternView.setOnEditorActionListener(this::updateDisplayPatternView);
         colorPatternView = view.findViewById(R.id.txtColorPattern);
-        colorPatternView.setOnEditorActionListener(this::setByteBounds);
+        colorPatternView.setOnEditorActionListener(this::updateColorPatternView);
         brightnessSlider = view.findViewById(R.id.brightness);
         speedSlider = view.findViewById(R.id.speed);
+        colorPatternList = view.findViewById(R.id.spnColorPattern);
+        ArrayAdapter<ColorPatternOptionData> colorPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        colorPatternList.setAdapter(colorPatternListAdapter);
+        colorPatternList.setOnItemSelectedListener(this.onColorPatternSelected);
+        displayPatternList = view.findViewById(R.id.spnDisplayPattern);
+        ArrayAdapter<DisplayPatternOptionData> displayPatternListAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        displayPatternList.setAdapter(displayPatternListAdapter);
+        displayPatternList.setOnItemSelectedListener(this.onDisplayPatternSelected);
 
         colorBars = new View[] {
                 view.findViewById(R.id.color1),
@@ -195,6 +217,11 @@ public class AdvancedFragment extends AdvancedView {
             b.setOnClickListener(readPreferenceListener(i));
             b.setOnLongClickListener(writePreferenceListener(i));
         }
+
+        view.findViewById(R.id.showAdvanced).setOnClickListener( v -> {
+            isAdvancedMode = ((Switch)v).isChecked();
+            refreshDisplay();
+        });
     }
 
     private void refreshDisplay() {
@@ -204,6 +231,9 @@ public class AdvancedFragment extends AdvancedView {
         }
 
         getActivity().runOnUiThread(() -> {
+            colorPatternView.setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            displayPatternView.setVisibility(isAdvancedMode ? VISIBLE : GONE);
+
             if (connectedDevice == null) {
                 setDisplayForDisconnectedDevice();
             } else {
@@ -215,6 +245,66 @@ public class AdvancedFragment extends AdvancedView {
     private void setDisplayForDisconnectedDevice() {
         statusView.setText("Not connected.");
         disableAll();
+        ((ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter()).clear();
+        ((ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter()).clear();
+        clearParameterList();
+        clearColorList();
+    }
+
+    private void clearParameterList() {
+        for (int i = 0; i < parameterSliders.length; i++) {
+            parameterSliders[i].setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            parameterSliders[i].setLabel("Parameter " + String.valueOf(i+1) +":");
+        }
+    }
+
+    private void clearColorList() {
+        for (View colorBar:colorBars) {
+            ((TableRow)colorBar.getParent()).setVisibility(isAdvancedMode ? VISIBLE : GONE);
+        }
+    }
+
+    private void resetColorList() {
+        clearColorList();
+        if (colorPatternList.getSelectedItemId() < 0) {
+            return;
+        }
+
+        ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
+        for (int i = 0; i < colorData.getNumberOfColors(); i++) {
+            ((TableRow)colorBars[i].getParent()).setVisibility(View.VISIBLE);
+        }
+
+        for (NumberSliderView v : parameterSliders) {
+            v.setEnabled(true);
+        }
+    }
+
+    private void resetParameterList() {
+        clearParameterList();
+
+        if (colorPatternList.getSelectedItemId() < 0 || displayPatternList.getSelectedItemId() < 0) {
+            return;
+        }
+
+        ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
+        int paramNumber = 0;
+        for (String parameterName:colorData.getParameterNames()) {
+            parameterSliders[paramNumber].setLabel(parameterName + ":");
+            parameterSliders[paramNumber].setVisibility(View.VISIBLE);
+            paramNumber++;
+        }
+
+        DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
+        for (String parameterName:displayData.getParameterNames()) {
+            parameterSliders[paramNumber].setLabel(parameterName + ":");
+            parameterSliders[paramNumber].setVisibility(View.VISIBLE);
+            paramNumber++;
+        }
+
+        for (NumberSliderView v : parameterSliders) {
+            v.setEnabled(true);
+        }
     }
 
     private void setDisplayForConnectedDevice() {
@@ -236,6 +326,20 @@ public class AdvancedFragment extends AdvancedView {
             colorValues[i].setText(colorIntToString(patternData.getColorValue(i)));
         }
 
+        // Populate dropdowns
+        List<ColorPatternOptionData> colorOptions = connectedDevice.getPatternOptionData().getColorPatternOptions();
+        ArrayAdapter<ColorPatternOptionData> colorPatternAdapter = (ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter();
+        colorPatternAdapter.clear();
+        colorPatternAdapter.addAll(colorOptions);
+        List<DisplayPatternOptionData> displayOptions = connectedDevice.getPatternOptionData().getDisplayPatternOptions();
+        ArrayAdapter<DisplayPatternOptionData> displayPatternAdapter = (ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter();
+        displayPatternAdapter.clear();
+        displayPatternAdapter.addAll(displayOptions);
+        selectColorPatternById(patternData.getColorPatternId());
+        selectDisplayPatternById(patternData.getDisplayPatternId());
+        colorPatternList.setEnabled(true);
+        displayPatternList.setEnabled(true);
+
         // Enable UI elements
         reloadButton.setEnabled(true);
         updateButton.setEnabled(true);
@@ -255,6 +359,9 @@ public class AdvancedFragment extends AdvancedView {
         for (View v : colorValues) {
             v.setEnabled(true);
         }
+
+        resetColorList();
+        resetParameterList();
     }
 
     private String colorIntToString(int color) {
@@ -308,8 +415,20 @@ public class AdvancedFragment extends AdvancedView {
         builder.show();
     }
 
-    private boolean setByteBounds(TextView textView, int i, KeyEvent keyEvent) {
-        boolean handled = false;
+    private boolean updateColorPatternView(TextView textView, int i, KeyEvent keyEvent) {
+        setByteBounds(textView);
+        textView.clearFocus();
+        colorPatternList.setSelection(-1);
+        return false;
+    }
+
+    private boolean updateDisplayPatternView(TextView textView, int i, KeyEvent keyEvent) {
+        setByteBounds(textView);
+        textView.clearFocus();
+        return false;
+    }
+
+    private void setByteBounds(TextView textView) {
         Integer value = Integer.parseInt(textView.getText().toString());
         if (value < 0) {
             value = 0;
@@ -318,8 +437,32 @@ public class AdvancedFragment extends AdvancedView {
             value = 255;
         }
         textView.setText(String.valueOf(value));
-        textView.clearFocus();
-        return handled;
+    }
+
+    private void selectColorPatternById(int colorPatternId) {
+        for (int i = 0; i < colorPatternList.getCount(); i++) {
+            ColorPatternOptionData colorPattern = (ColorPatternOptionData) colorPatternList.getItemAtPosition(i);
+            if (colorPattern.getId() == colorPatternId) {
+                colorPatternList.setSelection(i);
+                break;
+            }
+        }
+
+        // Didn't find it.
+        colorPatternList.setSelection(0);
+    }
+
+    private void selectDisplayPatternById(int displayPatternId) {
+        for (int i = 0; i < displayPatternList.getCount(); i++) {
+            DisplayPatternOptionData displayPattern = (DisplayPatternOptionData) displayPatternList.getItemAtPosition(i);
+            if (displayPattern.getId() == displayPatternId) {
+                displayPatternList.setSelection(i);
+                break;
+            }
+        }
+
+        // Didn't find it
+        displayPatternList.setSelection(0);
     }
 
     private boolean setColorValue(TextView textView, int i, KeyEvent keyEvent) {
@@ -406,6 +549,8 @@ public class AdvancedFragment extends AdvancedView {
         colorPatternView.setEnabled(false);
         brightnessSlider.setEnabled(false);
         speedSlider.setEnabled(false);
+        colorPatternList.setEnabled(false);
+        displayPatternList.setEnabled(false);
 
         for (NumberSliderView p : parameterSliders) {
             p.setEnabled(false);
@@ -445,4 +590,31 @@ public class AdvancedFragment extends AdvancedView {
         connectedDevice.setPatternData(patternData);
         viewModel.updateConfiguration(connectedDevice);
     }
+
+    private AdapterView.OnItemSelectedListener onColorPatternSelected = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
+            colorPatternView.setText(String.valueOf(colorData.getId()));
+            resetColorList();
+            resetParameterList();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
+    };
+
+    private AdapterView.OnItemSelectedListener onDisplayPatternSelected = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
+            displayPatternView.setText(String.valueOf(displayData.getId()));
+            resetParameterList();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
+    };
 }

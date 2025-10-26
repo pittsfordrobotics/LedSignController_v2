@@ -42,14 +42,19 @@
                         android:textAlignment="viewEnd"
                         android:text="Color Pattern: " />
 
+                    <Spinner
+                        android:id="@+id/spnColorPattern"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        />
+
                     <EditText
                         android:id="@+id/txtColorPattern"
-                        android:layout_column="1"
                         android:layout_width="40dp"
                         android:layout_height="25dp"
                         android:minWidth="40dp"
                         android:inputType="number"
-                        android:layout_gravity="start"
+                        android:layout_gravity="start|center_vertical"
                         android:textAlignment="textStart"
                         android:imeOptions="actionDone"
                         android:maxLength="3"
@@ -58,6 +63,7 @@
                         android:textSize="15dp"
                         android:text="0"
                         android:paddingStart="5dp"/>
+
                 </TableRow>
 
                 <TableRow
@@ -71,14 +77,19 @@
                         android:textAlignment="viewEnd"
                         android:text="Display Pattern: " />
 
+                    <Spinner
+                        android:id="@+id/spnDisplayPattern"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        />
+
                     <EditText
                         android:id="@+id/txtDisplayPattern"
-                        android:layout_column="1"
                         android:layout_width="40dp"
                         android:layout_height="25dp"
                         android:minWidth="40dp"
                         android:inputType="number"
-                        android:layout_gravity="start"
+                        android:layout_gravity="start|center_vertical"
                         android:textAlignment="textStart"
                         android:imeOptions="actionDone"
                         android:maxLength="3"
@@ -437,7 +448,16 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:text="10" />
-            </LinearLayout>        </LinearLayout>
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/showAdvanced"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Show advanced settings:" />
+
+        </LinearLayout>
     </ScrollView>
 
 </FrameLayout>

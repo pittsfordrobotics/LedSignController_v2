@@ -130,7 +130,7 @@
                         android:imeOptions="actionDone"
                         android:maxLength="6"
                         android:selectAllOnFocus="true"
-                        android:text="00AABB"
+                        android:text="E616A1"
                         android:textAllCaps="true"
                         android:textSize="15sp" />
 
@@ -170,7 +170,7 @@
                         android:maxLength="6"
                         android:selectAllOnFocus="true"
                         android:imeOptions="actionDone"
-                        android:text="ABABAB" />
+                        android:text="E616A1" />
 
                 </TableRow>
 
@@ -208,7 +208,7 @@
                         android:maxLength="6"
                         android:selectAllOnFocus="true"
                         android:imeOptions="actionDone"
-                        android:text="ABABAB" />
+                        android:text="E616A1" />
 
                 </TableRow>
 
@@ -246,7 +246,7 @@
                         android:maxLength="6"
                         android:selectAllOnFocus="true"
                         android:imeOptions="actionDone"
-                        android:text="ABABAB" />
+                        android:text="E616A1" />
                 </TableRow>
             </TableLayout>
 
@@ -449,6 +449,13 @@
                     android:layout_weight="1"
                     android:text="10" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="?android:attr/listDivider" />
 
             <Switch
                 android:id="@+id/showAdvanced"

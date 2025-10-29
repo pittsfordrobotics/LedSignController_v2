@@ -23,7 +23,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TableRow;
@@ -60,8 +59,8 @@ public class ConfigurationFragment extends AdvancedView {
     private NumberSliderView speedSlider;
     private View[] colorBars;
     private EditText[] colorValues;
-    private TextView colorPatternView;
-    private TextView displayPatternView;
+    private TextView colorPatternTextBox;
+    private TextView displayPatternTextBox;
     private TextView statusView;
     private Button reloadButton;
     private Button updateButton;
@@ -148,10 +147,10 @@ public class ConfigurationFragment extends AdvancedView {
         reloadButton.setOnClickListener(this::onReload);
         updateButton = view.findViewById(R.id.btnSend);
         updateButton.setOnClickListener(this::onSend);
-        displayPatternView = view.findViewById(R.id.txtDisplayPattern);
-        displayPatternView.setOnEditorActionListener(this::updateDisplayPatternView);
-        colorPatternView = view.findViewById(R.id.txtColorPattern);
-        colorPatternView.setOnEditorActionListener(this::updateColorPatternView);
+        displayPatternTextBox = view.findViewById(R.id.txtDisplayPattern);
+        displayPatternTextBox.setOnEditorActionListener(this::updateDisplayPatternView);
+        colorPatternTextBox = view.findViewById(R.id.txtColorPattern);
+        colorPatternTextBox.setOnEditorActionListener(this::updateColorPatternView);
         brightnessSlider = view.findViewById(R.id.brightness);
         speedSlider = view.findViewById(R.id.speed);
         colorPatternList = view.findViewById(R.id.spnColorPattern);
@@ -230,8 +229,8 @@ public class ConfigurationFragment extends AdvancedView {
         }
 
         getActivity().runOnUiThread(() -> {
-            colorPatternView.setVisibility(isAdvancedMode ? VISIBLE : GONE);
-            displayPatternView.setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            colorPatternTextBox.setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            displayPatternTextBox.setVisibility(isAdvancedMode ? VISIBLE : GONE);
 
             if (connectedDevice == null) {
                 setDisplayForDisconnectedDevice();
@@ -243,11 +242,11 @@ public class ConfigurationFragment extends AdvancedView {
 
     private void setDisplayForDisconnectedDevice() {
         statusView.setText("Not connected.");
-        disableAll();
         ((ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter()).clear();
         ((ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter()).clear();
         setParameterListToDefault();
         setColorBarsToDefault();
+        disableAll();
     }
 
     private void setColorBarsToDefault() {
@@ -318,8 +317,8 @@ public class ConfigurationFragment extends AdvancedView {
         brightnessSlider.setValue(Byte.toUnsignedInt(connectedDevice.getBrightness()));
         speedSlider.setValue(Byte.toUnsignedInt(connectedDevice.getSpeed()));
         PatternData patternData = connectedDevice.getCurrentPatternData();
-        colorPatternView.setText(String.valueOf(Byte.toUnsignedInt(patternData.getColorPatternId())));
-        displayPatternView.setText(String.valueOf(Byte.toUnsignedInt(patternData.getDisplayPatternId())));
+        colorPatternTextBox.setText(String.valueOf(Byte.toUnsignedInt(patternData.getColorPatternId())));
+        displayPatternTextBox.setText(String.valueOf(Byte.toUnsignedInt(patternData.getDisplayPatternId())));
 
         for (int i = 0; i < parameterSliders.length; i++) {
             parameterSliders[i].setValue(Byte.toUnsignedInt(patternData.getParameterValue(i)));
@@ -347,8 +346,8 @@ public class ConfigurationFragment extends AdvancedView {
         // Enable UI elements
         reloadButton.setEnabled(true);
         updateButton.setEnabled(true);
-        displayPatternView.setEnabled(true);
-        colorPatternView.setEnabled(true);
+        displayPatternTextBox.setEnabled(true);
+        colorPatternTextBox.setEnabled(true);
         brightnessSlider.setEnabled(true);
         speedSlider.setEnabled(true);
 
@@ -436,8 +435,8 @@ public class ConfigurationFragment extends AdvancedView {
     private void disableAll() {
         reloadButton.setEnabled(false);
         updateButton.setEnabled(false);
-        displayPatternView.setEnabled(false);
-        colorPatternView.setEnabled(false);
+        displayPatternTextBox.setEnabled(false);
+        colorPatternTextBox.setEnabled(false);
         brightnessSlider.setEnabled(false);
         speedSlider.setEnabled(false);
         colorPatternList.setEnabled(false);
@@ -474,8 +473,8 @@ public class ConfigurationFragment extends AdvancedView {
         connectedDevice.setBrightness((byte) brightnessSlider.getValue());
         connectedDevice.setSpeed((byte) speedSlider.getValue());
         PatternData patternData = new PatternData();
-        patternData.setColorPatternId((byte) Integer.parseInt(colorPatternView.getText().toString()));
-        patternData.setDisplayPatternId((byte) Integer.parseInt(displayPatternView.getText().toString()));
+        patternData.setColorPatternId((byte) Integer.parseInt(colorPatternTextBox.getText().toString()));
+        patternData.setDisplayPatternId((byte) Integer.parseInt(displayPatternTextBox.getText().toString()));
         for (int i = 0; i < colorBars.length; i++) {
             patternData.setColorValue(i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
         }
@@ -551,7 +550,7 @@ public class ConfigurationFragment extends AdvancedView {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
             ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
-            colorPatternView.setText(String.valueOf(colorData.getId()));
+            colorPatternTextBox.setText(String.valueOf(colorData.getId()));
             showColorBarsForPattern();
             showParameterListForPattern();
         }
@@ -565,7 +564,7 @@ public class ConfigurationFragment extends AdvancedView {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
             DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
-            displayPatternView.setText(String.valueOf(displayData.getId()));
+            displayPatternTextBox.setText(String.valueOf(displayData.getId()));
             showParameterListForPattern();
         }
 
@@ -588,14 +587,16 @@ public class ConfigurationFragment extends AdvancedView {
 
             brightnessSlider.setValue(brightness);
             speedSlider.setValue(speed);
-            colorPatternView.setText(String.valueOf(colorPattern));
-            displayPatternView.setText(String.valueOf(displayPattern));
+            colorPatternTextBox.setText(String.valueOf(colorPattern));
+            displayPatternTextBox.setText(String.valueOf(displayPattern));
             for (int i = 0; i < parameterSliders.length; i++) {
                 parameterSliders[i].setValue(getPreferenceIntValue("Adv_Param" + buttonNumber + "_" + i));
             }
 
             for (int i = 0; i < colorBars.length; i++) {
-                colorBars[i].setBackgroundColor(getPreferenceIntValue("Adv_Color" + buttonNumber + "_" + i));
+                int color = getPreferenceIntValue("Adv_Color" + buttonNumber + "_" + i);
+                colorBars[i].setBackgroundColor(color);
+                colorValues[i].setText(colorIntToString(color));
             }
         };
     }
@@ -606,8 +607,8 @@ public class ConfigurationFragment extends AdvancedView {
             SharedPreferences.Editor editor = pref.edit();
             editor.putInt("Adv_Speed" + buttonNumber, speedSlider.getValue());
             editor.putInt("Adv_Brightness" + buttonNumber, brightnessSlider.getValue());
-            editor.putInt("Adv_ColorPattern" + buttonNumber, Integer.parseInt(colorPatternView.getText().toString()));
-            editor.putInt("Adv_DisplayPattern" + buttonNumber, Integer.parseInt(displayPatternView.getText().toString()));
+            editor.putInt("Adv_ColorPattern" + buttonNumber, Integer.parseInt(colorPatternTextBox.getText().toString()));
+            editor.putInt("Adv_DisplayPattern" + buttonNumber, Integer.parseInt(displayPatternTextBox.getText().toString()));
             for (int i = 0; i < parameterSliders.length; i++) {
                 editor.putInt("Adv_Param" + buttonNumber + "_" + i, parameterSliders[i].getValue());
             }

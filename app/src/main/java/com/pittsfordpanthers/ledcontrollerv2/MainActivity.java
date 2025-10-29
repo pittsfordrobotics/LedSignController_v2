@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Connection"));
         tabLayout.addTab(tabLayout.newTab().setText("Configure"));
         tabLayout.addTab(tabLayout.newTab().setText("Debug"));
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

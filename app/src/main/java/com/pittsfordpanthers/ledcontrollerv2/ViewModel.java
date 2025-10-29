@@ -12,24 +12,28 @@ import com.pittsfordpanthers.ledcontrollerv2.bluetooth.ConnectedDevice;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.ConfigurationFragment;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.DebugLogFragment;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.ScanFragment;
-import com.pittsfordpanthers.ledcontrollerv2.views.ConfigurationView;
+import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
 import com.pittsfordpanthers.ledcontrollerv2.views.DebugView;
 import com.pittsfordpanthers.ledcontrollerv2.views.ScanView;
 
 public class ViewModel {
     private DebugView debugView = null;
     private ScanView scanView = null;
-    private ConfigurationView configurationView = null;
+    private AdvancedView advancedView = null;
+
     private Fragment[] uiViews = new Fragment[] {};
 
     private BluetoothProvider btProvider;
 
     public ViewModel() {
-        init(DebugLogFragment.newInstance(this), ScanFragment.newInstance(this), ConfigurationFragment.newInstance(this));
+        init(
+            DebugLogFragment.newInstance(this),
+            ScanFragment.newInstance(this),
+            ConfigurationFragment.newInstance(this));
     }
 
-    public ViewModel(DebugView debugView, ScanView scanView, ConfigurationView configurationView) {
-        init(debugView, scanView, configurationView);
+    public ViewModel(DebugView debugView, ScanView scanView, AdvancedView advancedView) {
+        init(debugView, scanView, advancedView);
     }
 
     public void setBluetoothProvider(BluetoothProvider btProvider) {
@@ -37,14 +41,14 @@ public class ViewModel {
         scanView.setBluetoothEnabled();
     }
 
-    private void init(DebugView debugView, ScanView scanView, ConfigurationView configurationView) {
+    private void init(DebugView debugView, ScanView scanView, AdvancedView advancedView) {
         this.debugView = debugView;
         this.scanView = scanView;
-        this.configurationView = configurationView;
+        this.advancedView = advancedView;
 
         uiViews = new Fragment[] {
                 scanView,
-                configurationView,
+                advancedView,
                 debugView
         };
     }
@@ -83,7 +87,7 @@ public class ViewModel {
 
         logMessage("Disconnected.");
         scanView.setDisconnectedState();
-        configurationView.setDisconnectedState();
+        advancedView.setDisconnectedState();
     }
 
     public void logMessage(String message) {
@@ -121,12 +125,12 @@ public class ViewModel {
         }
 
         scanView.setConnectedDevice(device);
-        configurationView.setConnectedDevice(device);
+        advancedView.setConnectedDevice(device);
     }
 
     private void onConnectionFailed(BleDevice device) {
         logMessage("Failed to connect to device: " + device.getName());
         scanView.setConnectionFailed();
-        configurationView.setDisconnectedState();
+        advancedView.setDisconnectedState();
     }
 }

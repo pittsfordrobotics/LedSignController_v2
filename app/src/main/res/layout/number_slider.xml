@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/txtLabel"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center"
+        android:textAlignment="viewEnd"
+        android:text="Label:" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_gravity="center_vertical"
+        android:min="0"
+        android:max="255"
+        />
+
+    <EditText
+        android:id="@+id/textValue"
+        android:layout_width="50dp"
+        android:layout_height="25dp"
+        android:inputType="number"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:imeOptions="actionDone"
+        android:maxLength="6"
+        android:selectAllOnFocus="true"
+        android:background="@null"
+        android:textSize="15sp"
+        android:text="0" />
+
+</merge>

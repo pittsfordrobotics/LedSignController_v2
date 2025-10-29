@@ -79,6 +79,7 @@ public class AndroidBleDevice extends ConnectedDevice {
         // Enqueue all the "read" operations,
         // ending with a NullOperation to invoke the final callback.
         logger.accept("Refreshing all characteristics.");
+        setPatternOptionData(new PatternOptionData());
         btProvider.queueOperation(readOperations.get(BleConstants.BrightnessCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.SpeedCharacteristicId));
         btProvider.queueOperation(readOperations.get(BleConstants.ColorPatternListCharacteristicId));
@@ -98,8 +99,11 @@ public class AndroidBleDevice extends ConnectedDevice {
     public void updateCharacteristics(Consumer<ConnectedDevice> updateCompletedCallback) {
         logger.accept("Updating characteristics.");
         btProvider.queueOperation(writeOperations.get(BleConstants.BrightnessCharacteristicId).withValue(new byte[] { getBrightness() }));
+        logger.accept("Brightness: " + String.valueOf(Byte.toUnsignedInt(getBrightness())));
         btProvider.queueOperation(writeOperations.get(BleConstants.SpeedCharacteristicId).withValue(new byte[] { getSpeed() }));
+        logger.accept("Speed: " + String.valueOf(Byte.toUnsignedInt(getSpeed())));
         btProvider.queueOperation(writeOperations.get(BleConstants.PatternDataCharacteristicId).withValue(getCurrentPatternData().toBinaryData()));
+        logger.accept("PatternData: " + getCurrentPatternData().toBinaryDataAsString());
 
         if (syncCharacteristic != null) {
             syncData++;

@@ -165,8 +165,12 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
         pendingOperation = operationQueue.remove();
         if (pendingOperation instanceof BleNullOperation) {
             // A do-nothing operation just to provide a callback method
-            BleNullOperation op = (BleNullOperation) pendingOperation;
-            op.getCallback().run();
+            try {
+                BleNullOperation op = (BleNullOperation) pendingOperation;
+                op.getCallback().run();
+            } catch (Exception e) {
+                logMessage("Failed to complete callback: " + e.getMessage());
+            }
             completeOperation();
             return;
         }
@@ -202,6 +206,12 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
             return;
         }
 
+        if (pendingOperation instanceof BleNullOperation) {
+            logMessage("BleNullOperation timed out. This is not expected!");
+            pendingOperation = null;
+            return;
+        }
+
         long timeSinceStartMillis = Calendar.getInstance().getTimeInMillis() - operationStartTimeMillis;
         if (timeSinceStartMillis <= OperationTimeoutMillis) {
             // Not enough time elapsed.
@@ -212,6 +222,20 @@ public class AndroidBluetoothProvider implements BluetoothProvider {
         operationRetryCount++;
         if (operationRetryCount < OperationMaxRetries) {
             logMessage("Operation timed out. Retrying...");
+            String className = "unknown";
+            try {
+                className = pendingOperation.getClass().getName();
+            } catch (Exception e) {
+                className = e.getMessage();
+            }
+            logMessage("Operation class name: " + className);
+            String uuid = "unknown";
+            try {
+                uuid = pendingOperation.getCharacteristic().getUuid().toString();
+            } catch (Exception e) {
+                uuid = e.getMessage();
+            }
+            logMessage("Characteristic: " + uuid);
             operationStartTimeMillis = Calendar.getInstance().getTimeInMillis();
             submitPendingOperation();
             return;

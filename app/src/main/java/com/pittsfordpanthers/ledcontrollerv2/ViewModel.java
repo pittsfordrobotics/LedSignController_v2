@@ -9,7 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.BleDevice;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.BluetoothProvider;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.ConnectedDevice;
-import com.pittsfordpanthers.ledcontrollerv2.ui.main.AdvancedFragment;
+import com.pittsfordpanthers.ledcontrollerv2.ui.main.ConfigurationFragment;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.DebugLogFragment;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.ScanFragment;
 import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
@@ -29,7 +29,7 @@ public class ViewModel {
         init(
             DebugLogFragment.newInstance(this),
             ScanFragment.newInstance(this),
-            AdvancedFragment.newInstance(this));
+            ConfigurationFragment.newInstance(this));
     }
 
     public ViewModel(DebugView debugView, ScanView scanView, AdvancedView advancedView) {

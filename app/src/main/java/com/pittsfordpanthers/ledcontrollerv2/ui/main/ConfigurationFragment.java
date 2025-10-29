@@ -39,18 +39,16 @@ import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
 import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.ColorPickerView;
-import com.skydoves.colorpickerview.flag.BubbleFlag;
-import com.skydoves.colorpickerview.flag.FlagMode;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
 import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link AdvancedFragment#newInstance} factory method to
+ * Use the {@link ConfigurationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AdvancedFragment extends AdvancedView {
+public class ConfigurationFragment extends AdvancedView {
 
     private boolean isAdvancedMode = false;
     private ViewModel viewModel = null;
@@ -100,7 +98,7 @@ public class AdvancedFragment extends AdvancedView {
         }
     };
 
-    public AdvancedFragment() {
+    public ConfigurationFragment() {
         // Required empty public constructor
     }
 
@@ -110,8 +108,8 @@ public class AdvancedFragment extends AdvancedView {
      *
      * @return A new instance of fragment AdvancedFragment.
      */
-    public static AdvancedFragment newInstance(ViewModel viewModel) {
-        AdvancedFragment fragment = new AdvancedFragment();
+    public static ConfigurationFragment newInstance(ViewModel viewModel) {
+        ConfigurationFragment fragment = new ConfigurationFragment();
         fragment.viewModel = viewModel;
         return fragment;
     }
@@ -125,7 +123,7 @@ public class AdvancedFragment extends AdvancedView {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_advanced, container, false);
+        view = inflater.inflate(R.layout.fragment_configuration, container, false);
         initialize();
         refreshDisplay();
         return view;

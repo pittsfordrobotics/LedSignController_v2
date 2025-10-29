@@ -344,7 +344,7 @@
                     android:layout_weight="1" />
 
                 <Button
-                    android:id="@+id/btnUpdate"
+                    android:id="@+id/btnSend"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
@@ -452,9 +452,10 @@
 
             <Switch
                 android:id="@+id/showAdvanced"
-                android:layout_width="match_parent"
+                android:layout_width="170dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center"
                 android:text="Expert mode:" />
 
         </LinearLayout>

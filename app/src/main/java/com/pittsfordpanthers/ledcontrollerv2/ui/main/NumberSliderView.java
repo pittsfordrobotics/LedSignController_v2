@@ -64,7 +64,7 @@ public class NumberSliderView extends LinearLayout {
 
         inflater.inflate(R.layout.number_slider, this, true);
 
-        parentLayout = findViewById(R.id.parentLayout);
+        //parentLayout = findViewById(R.id.parentLayout);
         label = findViewById(R.id.txtLabel);
         seekBar = findViewById(R.id.seekBar);
         seekBar.setMin(minValue);
@@ -98,11 +98,6 @@ public class NumberSliderView extends LinearLayout {
         refresh();
     }
 
-    public void setVisibility(int visibility) {
-        this.visibility = visibility;
-        refresh();
-    }
-
     public void setOnValueChangedListener(OnValueChangeListener onValueChangedListener) {
         this.onValueChangeListener = onValueChangeListener;
     }
@@ -117,7 +112,6 @@ public class NumberSliderView extends LinearLayout {
         textBox.setEnabled(enabled);
         textBox.setText(String.valueOf(lastValue));
         textBox.clearFocus();
-        parentLayout.setVisibility(visibility);
     }
 
     private NumberSliderView getNumberSliderViewRef() {

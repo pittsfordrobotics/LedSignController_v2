@@ -23,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TableRow;
@@ -145,8 +146,8 @@ public class ConfigurationFragment extends AdvancedView {
         statusView = view.findViewById(R.id.connectionStatus);
         reloadButton = view.findViewById(R.id.btnReload);
         reloadButton.setOnClickListener(this::onReload);
-        updateButton = view.findViewById(R.id.btnUpdate);
-        updateButton.setOnClickListener(this::onUpdate);
+        updateButton = view.findViewById(R.id.btnSend);
+        updateButton.setOnClickListener(this::onSend);
         displayPatternView = view.findViewById(R.id.txtDisplayPattern);
         displayPatternView.setOnEditorActionListener(this::updateDisplayPatternView);
         colorPatternView = view.findViewById(R.id.txtColorPattern);
@@ -245,26 +246,26 @@ public class ConfigurationFragment extends AdvancedView {
         disableAll();
         ((ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter()).clear();
         ((ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter()).clear();
-        clearParameterList();
-        clearColorList();
+        setParameterListToDefault();
+        setColorBarsToDefault();
     }
 
-    private void clearParameterList() {
-        for (int i = 0; i < parameterSliders.length; i++) {
-            parameterSliders[i].setVisibility(isAdvancedMode ? VISIBLE : GONE);
-            parameterSliders[i].setLabel("Parameter " + String.valueOf(i+1) +":");
-        }
-    }
-
-    private void clearColorList() {
+    private void setColorBarsToDefault() {
         for (View colorBar:colorBars) {
             ((TableRow)colorBar.getParent()).setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            colorBar.setEnabled(true);
         }
     }
 
-    private void resetColorList() {
-        clearColorList();
+    private void showColorBarsForPattern() {
+        setColorBarsToDefault();
+        if (isAdvancedMode) {
+            // If in advanced mode, leave all color bars showing.
+            return;
+        }
+
         if (colorPatternList.getSelectedItemId() < 0) {
+            // Shouldn't happen?
             return;
         }
 
@@ -272,14 +273,23 @@ public class ConfigurationFragment extends AdvancedView {
         for (int i = 0; i < colorData.getNumberOfColors(); i++) {
             ((TableRow)colorBars[i].getParent()).setVisibility(View.VISIBLE);
         }
+    }
 
-        for (NumberSliderView v : parameterSliders) {
-            v.setEnabled(true);
+    private void setParameterListToDefault() {
+        for (int i = 0; i < parameterSliders.length; i++) {
+            parameterSliders[i].setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            parameterSliders[i].setLabel("Parameter " + String.valueOf(i+1) +":");
+            parameterSliders[i].setEnabled(true);
         }
     }
 
-    private void resetParameterList() {
-        clearParameterList();
+    private void showParameterListForPattern() {
+        setParameterListToDefault();
+
+        if (isAdvancedMode) {
+            // If in advanced mode, leave all parameters showing with default labels.
+            return;
+        }
 
         if (colorPatternList.getSelectedItemId() < 0 || displayPatternList.getSelectedItemId() < 0) {
             return;
@@ -298,10 +308,6 @@ public class ConfigurationFragment extends AdvancedView {
             parameterSliders[paramNumber].setLabel(parameterName + ":");
             parameterSliders[paramNumber].setVisibility(View.VISIBLE);
             paramNumber++;
-        }
-
-        for (NumberSliderView v : parameterSliders) {
-            v.setEnabled(true);
         }
     }
 
@@ -346,20 +352,12 @@ public class ConfigurationFragment extends AdvancedView {
         brightnessSlider.setEnabled(true);
         speedSlider.setEnabled(true);
 
-        for (NumberSliderView p : parameterSliders) {
-            p.setEnabled(true);
-        }
-
-        for (View v : colorBars) {
-            v.setEnabled(true);
-        }
-
         for (View v : colorValues) {
             v.setEnabled(true);
         }
 
-        resetColorList();
-        resetParameterList();
+        showColorBarsForPattern();
+        showParameterListForPattern();
     }
 
     private String colorIntToString(int color) {
@@ -374,43 +372,6 @@ public class ConfigurationFragment extends AdvancedView {
         }
 
         return colorString;
-    }
-
-    private void onColorTapped(View sourceColorBar) {
-        int barId = (int)sourceColorBar.getTag();
-        ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
-        int initialColor = drawable.getColor();
-        // odd bug: if the color is black, the color picker doesn't send a new color
-        // unless the brightness slider has been moved
-        if (initialColor == Color.BLACK) {
-            initialColor = Color.argb(255, 255, 255, 255);
-        }
-
-        ColorPickerDialog.Builder builder = new ColorPickerDialog.Builder(getContext())
-                .setTitle("Color " + (barId + 1))
-                .setPositiveButton("OK",
-                        new ColorEnvelopeListener() {
-                            @Override
-                            public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
-                                sourceColorBar.setBackgroundColor(envelope.getColor());
-                                String colorString = colorIntToString(envelope.getColor());
-                                colorValues[barId].setText(colorString);
-                            }
-                        })
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        })
-                .attachAlphaSlideBar(false) // the default value is true.
-                .attachBrightnessSlideBar(true)  // the default value is true.
-                .setBottomSpace(10); // set a bottom space between the last slidebar and buttons.
-
-        ColorPickerView cpView = builder.getColorPickerView();
-        cpView.setInitialColor(initialColor);
-        builder.show();
     }
 
     private boolean updateColorPatternView(TextView textView, int i, KeyEvent keyEvent) {
@@ -463,6 +424,71 @@ public class ConfigurationFragment extends AdvancedView {
         displayPatternList.setSelection(0);
     }
 
+    private int getPreferenceIntValue(String prefName) {
+        SharedPreferences pref = getActivity().getPreferences(MODE_PRIVATE);
+        if (!pref.contains(prefName)) {
+            return -1;
+        }
+
+        return pref.getInt(prefName, -1);
+    }
+
+    private void disableAll() {
+        reloadButton.setEnabled(false);
+        updateButton.setEnabled(false);
+        displayPatternView.setEnabled(false);
+        colorPatternView.setEnabled(false);
+        brightnessSlider.setEnabled(false);
+        speedSlider.setEnabled(false);
+        colorPatternList.setEnabled(false);
+        displayPatternList.setEnabled(false);
+
+        for (NumberSliderView p : parameterSliders) {
+            p.setEnabled(false);
+        }
+
+        for (View v : colorBars) {
+            v.setEnabled(false);
+        }
+
+        for (View v : colorValues) {
+            v.setEnabled(false);
+        }
+    }
+
+    // *****
+    // Event callbacks
+    // *****
+
+    // Reload button - refresh connected device settings
+    private void onReload(View v) {
+        statusView.setText("Refreshing device...");
+        disableAll();
+        viewModel.reloadConfiguration(connectedDevice);
+    }
+
+    // Send button - send new values to the connected device
+    private void onSend(View v) {
+        statusView.setText("Updating device...");
+        disableAll();
+        connectedDevice.setBrightness((byte) brightnessSlider.getValue());
+        connectedDevice.setSpeed((byte) speedSlider.getValue());
+        PatternData patternData = new PatternData();
+        patternData.setColorPatternId((byte) Integer.parseInt(colorPatternView.getText().toString()));
+        patternData.setDisplayPatternId((byte) Integer.parseInt(displayPatternView.getText().toString()));
+        for (int i = 0; i < colorBars.length; i++) {
+            patternData.setColorValue(i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
+        }
+
+        for (int i = 0; i < parameterSliders.length; i++) {
+            patternData.setParameterValue(i, (byte) parameterSliders[i].getValue());
+        }
+
+        connectedDevice.setPatternData(patternData);
+        viewModel.updateConfiguration(connectedDevice);
+    }
+
+    // Called when the color value text field has been updated - formats the text and updates the color bar.
     private boolean setColorValue(TextView textView, int i, KeyEvent keyEvent) {
         // Format the input string:
         //  - if it's less than 6 characters, pad zeros in front.
@@ -483,14 +509,70 @@ public class ConfigurationFragment extends AdvancedView {
         return false;
     }
 
-    private int getPreferenceIntValue(String prefName) {
-        SharedPreferences pref = getActivity().getPreferences(MODE_PRIVATE);
-        if (!pref.contains(prefName)) {
-            return -1;
+    // Called when the color bar has been tapped - opens the color picker.
+    private void onColorTapped(View sourceColorBar) {
+        int barId = (int)sourceColorBar.getTag();
+        ColorDrawable drawable = (ColorDrawable) sourceColorBar.getBackground();
+        int initialColor = drawable.getColor();
+        // odd bug: if the color is black, the color picker doesn't send a new color
+        // unless the brightness slider has been moved
+        if (initialColor == Color.BLACK) {
+            initialColor = Color.argb(255, 255, 255, 255);
         }
 
-        return pref.getInt(prefName, -1);
+        ColorPickerDialog.Builder builder = new ColorPickerDialog.Builder(getContext())
+                .setTitle("Color " + (barId + 1))
+                .setPositiveButton("OK",
+                        new ColorEnvelopeListener() {
+                            @Override
+                            public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                                sourceColorBar.setBackgroundColor(envelope.getColor());
+                                String colorString = colorIntToString(envelope.getColor());
+                                colorValues[barId].setText(colorString);
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                .attachAlphaSlideBar(false) // the default value is true.
+                .attachBrightnessSlideBar(true)  // the default value is true.
+                .setBottomSpace(10); // set a bottom space between the last slidebar and buttons.
+
+        ColorPickerView cpView = builder.getColorPickerView();
+        cpView.setInitialColor(initialColor);
+        builder.show();
     }
+
+    private final AdapterView.OnItemSelectedListener onColorPatternSelected = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
+            colorPatternView.setText(String.valueOf(colorData.getId()));
+            showColorBarsForPattern();
+            showParameterListForPattern();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
+    };
+
+    private final AdapterView.OnItemSelectedListener onDisplayPatternSelected = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
+            displayPatternView.setText(String.valueOf(displayData.getId()));
+            showParameterListForPattern();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
+    };
 
     private View.OnClickListener readPreferenceListener(int buttonNumber) {
         return view -> {
@@ -539,80 +621,4 @@ public class ConfigurationFragment extends AdvancedView {
             return true;
         };
     }
-
-    private void disableAll() {
-        reloadButton.setEnabled(false);
-        updateButton.setEnabled(false);
-        displayPatternView.setEnabled(false);
-        colorPatternView.setEnabled(false);
-        brightnessSlider.setEnabled(false);
-        speedSlider.setEnabled(false);
-        colorPatternList.setEnabled(false);
-        displayPatternList.setEnabled(false);
-
-        for (NumberSliderView p : parameterSliders) {
-            p.setEnabled(false);
-        }
-
-        for (View v : colorBars) {
-            v.setEnabled(false);
-        }
-
-        for (View v : colorValues) {
-            v.setEnabled(false);
-        }
-    }
-
-    private void onReload(View v) {
-        statusView.setText("Refreshing device...");
-        disableAll();
-        viewModel.reloadConfiguration(connectedDevice);
-    }
-
-    private void onUpdate(View v) {
-        statusView.setText("Updating device...");
-        disableAll();
-        connectedDevice.setBrightness((byte) brightnessSlider.getValue());
-        connectedDevice.setSpeed((byte) speedSlider.getValue());
-        PatternData patternData = new PatternData();
-        patternData.setColorPatternId((byte) Integer.parseInt(colorPatternView.getText().toString()));
-        patternData.setDisplayPatternId((byte) Integer.parseInt(displayPatternView.getText().toString()));
-        for (int i = 0; i < colorBars.length; i++) {
-            patternData.setColorValue(i, ((ColorDrawable)colorBars[i].getBackground()).getColor());
-        }
-
-        for (int i = 0; i < parameterSliders.length; i++) {
-            patternData.setParameterValue(i, (byte) parameterSliders[i].getValue());
-        }
-
-        connectedDevice.setPatternData(patternData);
-        viewModel.updateConfiguration(connectedDevice);
-    }
-
-    private AdapterView.OnItemSelectedListener onColorPatternSelected = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
-            colorPatternView.setText(String.valueOf(colorData.getId()));
-            resetColorList();
-            resetParameterList();
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {
-        }
-    };
-
-    private AdapterView.OnItemSelectedListener onDisplayPatternSelected = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
-            displayPatternView.setText(String.valueOf(displayData.getId()));
-            resetParameterList();
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {
-        }
-    };
 }

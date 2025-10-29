@@ -10,11 +10,9 @@ import com.pittsfordpanthers.ledcontrollerv2.bluetooth.BleDevice;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.BluetoothProvider;
 import com.pittsfordpanthers.ledcontrollerv2.bluetooth.ConnectedDevice;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.AdvancedFragment;
-import com.pittsfordpanthers.ledcontrollerv2.ui.main.ConfigurationFragment;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.DebugLogFragment;
 import com.pittsfordpanthers.ledcontrollerv2.ui.main.ScanFragment;
 import com.pittsfordpanthers.ledcontrollerv2.views.AdvancedView;
-import com.pittsfordpanthers.ledcontrollerv2.views.ConfigurationView;
 import com.pittsfordpanthers.ledcontrollerv2.views.DebugView;
 import com.pittsfordpanthers.ledcontrollerv2.views.ScanView;
 

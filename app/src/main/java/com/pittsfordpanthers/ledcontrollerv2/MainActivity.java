@@ -68,8 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void configureTabs(TabLayout tabLayout, ViewPager2 pager) {
         tabLayout.addTab(tabLayout.newTab().setText("Connection"));
-        //tabLayout.addTab(tabLayout.newTab().setText("Configure"));
-        tabLayout.addTab(tabLayout.newTab().setText("Advanced"));
+        tabLayout.addTab(tabLayout.newTab().setText("Configure"));
         tabLayout.addTab(tabLayout.newTab().setText("Debug"));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

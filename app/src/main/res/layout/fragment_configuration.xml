@@ -24,7 +24,6 @@
                 android:text="Not connected." />
 
             <TableLayout
-                android:id="@+id/advConfigTable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="4sp"
@@ -99,14 +98,21 @@
                         android:text="0"
                         android:paddingStart="5dp"/>
                 </TableRow>
+            </TableLayout>
 
-                <TableRow
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4sp"
+                android:stretchColumns="1">
+
+            <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
                     <TextView
                         android:layout_column="0"
-                        android:layout_width="wrap_content"
+                        android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end|center"
                         android:textAlignment="viewEnd"
@@ -123,7 +129,7 @@
 
                     <EditText
                         android:id="@+id/colorCode1"
-                        android:minWidth="80dp"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_column="2"
                         android:layout_gravity="center"
@@ -141,7 +147,7 @@
                     android:layout_height="match_parent">
                     <TextView
                         android:layout_column="0"
-                        android:layout_width="wrap_content"
+                        android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end|center"
                         android:textAlignment="viewEnd"
@@ -161,7 +167,7 @@
                         android:id="@+id/colorCode2"
                         android:textAllCaps="true"
                         android:layout_column="2"
-                        android:minWidth="80dp"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textSize="15sp"
@@ -179,7 +185,7 @@
                     android:layout_height="match_parent">
                     <TextView
                         android:layout_column="0"
-                        android:layout_width="wrap_content"
+                        android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end|center"
                         android:textAlignment="viewEnd"
@@ -199,7 +205,7 @@
                         android:id="@+id/colorCode3"
                         android:textAllCaps="true"
                         android:layout_column="2"
-                        android:minWidth="80dp"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textSize="15sp"
@@ -217,7 +223,7 @@
                     android:layout_height="match_parent">
                     <TextView
                         android:layout_column="0"
-                        android:layout_width="wrap_content"
+                        android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end|center"
                         android:textAlignment="viewEnd"
@@ -237,7 +243,7 @@
                         android:id="@+id/colorCode4"
                         android:textAllCaps="true"
                         android:layout_column="2"
-                        android:minWidth="80dp"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textSize="15sp"

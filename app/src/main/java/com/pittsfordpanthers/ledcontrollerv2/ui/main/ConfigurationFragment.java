@@ -49,6 +49,9 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class ConfigurationFragment extends AdvancedView {
+    private static final int unknownId = 255;
+    private final ColorPatternOptionData unknownColorPatterOptionData = new ColorPatternOptionData("<Unknown>", unknownId, 4);
+    private final DisplayPatternOptionData unkownDisplayPatternOptionData = new DisplayPatternOptionData("<Unknown>", unknownId);
 
     private boolean isAdvancedMode = false;
     private ViewModel viewModel = null;
@@ -231,6 +234,8 @@ public class ConfigurationFragment extends AdvancedView {
         getActivity().runOnUiThread(() -> {
             colorPatternTextBox.setVisibility(isAdvancedMode ? VISIBLE : GONE);
             displayPatternTextBox.setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            colorPatternList.setVisibility(isAdvancedMode ? GONE : VISIBLE);
+            displayPatternList.setVisibility(isAdvancedMode ? GONE : VISIBLE);
 
             if (connectedDevice == null) {
                 setDisplayForDisconnectedDevice();
@@ -276,7 +281,7 @@ public class ConfigurationFragment extends AdvancedView {
 
     private void setParameterListToDefault() {
         for (int i = 0; i < parameterSliders.length; i++) {
-            parameterSliders[i].setVisibility(isAdvancedMode ? VISIBLE : GONE);
+            parameterSliders[i].setVisibility(VISIBLE);
             parameterSliders[i].setLabel("Parameter " + String.valueOf(i+1) +":");
             parameterSliders[i].setEnabled(true);
         }
@@ -291,6 +296,13 @@ public class ConfigurationFragment extends AdvancedView {
         }
 
         if (colorPatternList.getSelectedItemId() < 0 || displayPatternList.getSelectedItemId() < 0) {
+            // Nothing selected?  Shouldn't get here.
+            return;
+        }
+
+        if (((ColorPatternOptionData) colorPatternList.getSelectedItem()).getId() == unknownId
+                || ((DisplayPatternOptionData) displayPatternList.getSelectedItem()).getId() == unknownId) {
+            // We won't be able to determine the number of parameters or their labels.
             return;
         }
 
@@ -298,15 +310,17 @@ public class ConfigurationFragment extends AdvancedView {
         int paramNumber = 0;
         for (String parameterName:colorData.getParameterNames()) {
             parameterSliders[paramNumber].setLabel(parameterName + ":");
-            parameterSliders[paramNumber].setVisibility(View.VISIBLE);
             paramNumber++;
         }
 
         DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
         for (String parameterName:displayData.getParameterNames()) {
             parameterSliders[paramNumber].setLabel(parameterName + ":");
-            parameterSliders[paramNumber].setVisibility(View.VISIBLE);
             paramNumber++;
+        }
+
+        for (int i = paramNumber; i < parameterSliders.length; i++) {
+            parameterSliders[i].setVisibility(GONE);
         }
     }
 
@@ -334,12 +348,16 @@ public class ConfigurationFragment extends AdvancedView {
         ArrayAdapter<ColorPatternOptionData> colorPatternAdapter = (ArrayAdapter<ColorPatternOptionData>) colorPatternList.getAdapter();
         colorPatternAdapter.clear();
         colorPatternAdapter.addAll(colorOptions);
+        colorPatternAdapter.add(unknownColorPatterOptionData);
         List<DisplayPatternOptionData> displayOptions = connectedDevice.getPatternOptionData().getDisplayPatternOptions();
         ArrayAdapter<DisplayPatternOptionData> displayPatternAdapter = (ArrayAdapter<DisplayPatternOptionData>) displayPatternList.getAdapter();
         displayPatternAdapter.clear();
         displayPatternAdapter.addAll(displayOptions);
+        displayPatternAdapter.add(unkownDisplayPatternOptionData);
         selectColorPatternById(patternData.getColorPatternId());
+        colorPatternTextBox.setText(String.valueOf(patternData.getColorPatternId()));
         selectDisplayPatternById(patternData.getDisplayPatternId());
+        displayPatternTextBox.setText(String.valueOf(patternData.getDisplayPatternId()));
         colorPatternList.setEnabled(true);
         displayPatternList.setEnabled(true);
 
@@ -376,7 +394,6 @@ public class ConfigurationFragment extends AdvancedView {
     private boolean updateColorPatternView(TextView textView, int i, KeyEvent keyEvent) {
         setByteBounds(textView);
         textView.clearFocus();
-        colorPatternList.setSelection(-1);
         return false;
     }
 
@@ -402,12 +419,12 @@ public class ConfigurationFragment extends AdvancedView {
             ColorPatternOptionData colorPattern = (ColorPatternOptionData) colorPatternList.getItemAtPosition(i);
             if (colorPattern.getId() == colorPatternId) {
                 colorPatternList.setSelection(i);
-                break;
+                return;
             }
         }
 
         // Didn't find it.
-        colorPatternList.setSelection(0);
+        colorPatternList.setSelection(colorPatternList.getCount()-1);
     }
 
     private void selectDisplayPatternById(int displayPatternId) {
@@ -415,12 +432,12 @@ public class ConfigurationFragment extends AdvancedView {
             DisplayPatternOptionData displayPattern = (DisplayPatternOptionData) displayPatternList.getItemAtPosition(i);
             if (displayPattern.getId() == displayPatternId) {
                 displayPatternList.setSelection(i);
-                break;
+                return;
             }
         }
 
         // Didn't find it
-        displayPatternList.setSelection(0);
+        displayPatternList.setSelection(displayPatternList.getCount()-1);
     }
 
     private int getPreferenceIntValue(String prefName) {
@@ -550,7 +567,9 @@ public class ConfigurationFragment extends AdvancedView {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
             ColorPatternOptionData colorData = (ColorPatternOptionData)colorPatternList.getSelectedItem();
-            colorPatternTextBox.setText(String.valueOf(colorData.getId()));
+            if (colorData.getId() != unknownId) {
+                colorPatternTextBox.setText(String.valueOf(colorData.getId()));
+            }
             showColorBarsForPattern();
             showParameterListForPattern();
         }
@@ -564,7 +583,9 @@ public class ConfigurationFragment extends AdvancedView {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
             DisplayPatternOptionData displayData = (DisplayPatternOptionData)displayPatternList.getSelectedItem();
-            displayPatternTextBox.setText(String.valueOf(displayData.getId()));
+            if (displayData.getId() != unknownId) {
+                displayPatternTextBox.setText(String.valueOf(displayData.getId()));
+            }
             showParameterListForPattern();
         }
 

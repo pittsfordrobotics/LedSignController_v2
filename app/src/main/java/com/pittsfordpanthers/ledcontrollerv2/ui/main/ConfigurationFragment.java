@@ -609,7 +609,9 @@ public class ConfigurationFragment extends AdvancedView {
             brightnessSlider.setValue(brightness);
             speedSlider.setValue(speed);
             colorPatternTextBox.setText(String.valueOf(colorPattern));
+            selectColorPatternById(colorPattern);
             displayPatternTextBox.setText(String.valueOf(displayPattern));
+            selectDisplayPatternById(displayPattern);
             for (int i = 0; i < parameterSliders.length; i++) {
                 parameterSliders[i].setValue(getPreferenceIntValue("Adv_Param" + buttonNumber + "_" + i));
             }
